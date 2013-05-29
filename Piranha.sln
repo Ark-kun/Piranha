@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piranha", "Piranha\Piranha.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piranha.Tests", "Piranha.Tests\Piranha.Tests.csproj", "{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ark.Cecil", "Ark.Cecil\Ark.Cecil.csproj", "{5B2BAD48-76D3-4D11-90D1-28B29CFCBEEC}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -23,6 +25,10 @@ Global
 		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B2BAD48-76D3-4D11-90D1-28B29CFCBEEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B2BAD48-76D3-4D11-90D1-28B29CFCBEEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B2BAD48-76D3-4D11-90D1-28B29CFCBEEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B2BAD48-76D3-4D11-90D1-28B29CFCBEEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
