@@ -9,6 +9,9 @@ namespace Piranha {
         [VerbOption("remove-all-resources", HelpText = "Remove all assembly resources")]
         public RemoveAllResourcesCommand RemoveAllResources { get; set; }
 
+        [VerbOption("remove-method-bodies", HelpText = "Remove all code")]
+        public RemoveMethodBodiesCommand RemoveMethodBodies { get; set; }
+
         [VerbOption("mark-all-references-retargetable", HelpText = "Marks all references as retargetable")]
         public MarkAllReferencesRetargetableCommand MarkAllReferencesRetargetable { get; set; }
 
