@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piranha", "Piranha\Piranha.csproj", "{F6DC9083-1CC6-4A12-BD95-4689EF1C30F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piranha.Tests", "Piranha.Tests\Piranha.Tests.csproj", "{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -17,6 +19,10 @@ Global
 		{F6DC9083-1CC6-4A12-BD95-4689EF1C30F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6DC9083-1CC6-4A12-BD95-4689EF1C30F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6DC9083-1CC6-4A12-BD95-4689EF1C30F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC8771FA-87D6-4519-BB1D-0EFA9BF37B80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
