@@ -11,8 +11,8 @@ namespace Ark.Cecil {
             _preserveFieldsOfStructs = preserveFieldsOfStructs;
         }
 
-        public ICollection<FieldDefinition> FieldsToPreserve { get; set; }
-        public ICollection<MethodDefinition> MethodsToPreserve { get; set; }
+        public ICollection<FieldReference> FieldsToPreserve { get; set; }
+        public ICollection<MethodReference> MethodsToPreserve { get; set; }
 
         public override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
             methodDefs.RemoveWhere(methodDef => !methodDef.IsPublic && !methodDef.IsFamily && !(MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)));

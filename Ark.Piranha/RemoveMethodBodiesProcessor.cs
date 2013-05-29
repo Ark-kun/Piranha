@@ -1,6 +1,7 @@
 ﻿using Ark.Cecil;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -9,11 +10,16 @@ namespace Ark.Piranha {
         bool _fixConstructors;
         bool _fixFunctions;
         bool _fixVoidMethods;
+        HashSet<MethodReference> _usedConstructors = new HashSet<MethodReference>(MethodReferenceEqualityComparer.Default);
 
         public RemoveMethodBodiesProcessor(bool fixConstructors = true, bool fixFunctions = true, bool fixVoidMethods = true) {
             _fixConstructors = fixConstructors;
             _fixFunctions = fixFunctions;
             _fixVoidMethods = fixVoidMethods;
+        }
+
+        public ISet<MethodReference> UsedConstructors {
+            get { return _usedConstructors; }
         }
 
         public override void ProcessMethod(MethodDefinition methodDef) {
@@ -57,7 +63,7 @@ namespace Ark.Piranha {
                             //body.Instructions.Add(Instruction.Create(OpCodes.Call, constructor));
                             //body.Instructions.Add(callInstruction);
                             body.Instructions.Add(Instruction.Create(OpCodes.Call, constructorRef));
-                            //FIX!!!: usedConstructors.Add(constructorRef); //Workaround to prevent removal of used internal constructors.
+                            _usedConstructors.Add(constructorRef); //Workaround to prevent removal of used internal constructors.
                         } else {
                             Debug.WriteLine(string.Format("Strange: Constructor {0} doesn't call base type ({1}) constructor.", methodDef, methodDef.DeclaringType.BaseType));
                         }
