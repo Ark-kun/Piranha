@@ -12,6 +12,9 @@ namespace Piranha {
         [VerbOption("remove-method-bodies", HelpText = "Remove all code")]
         public RemoveMethodBodiesCommand RemoveMethodBodies { get; set; }
 
+        [VerbOption("remove-private-members", HelpText = "Remove private class members")]
+        public RemovePrivateMembersCommand RemovePrivateMembers { get; set; }
+
         [VerbOption("mark-all-references-retargetable", HelpText = "Marks all references as retargetable")]
         public MarkAllReferencesRetargetableCommand MarkAllReferencesRetargetable { get; set; }
 
