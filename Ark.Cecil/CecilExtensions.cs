@@ -1,6 +1,7 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ark.Cecil {
     public static class CecilExtensions {
@@ -190,6 +191,31 @@ namespace Ark.Cecil {
             il.Emit(OpCodes.Ldloca, variableDef);
             il.Emit(OpCodes.Initobj, variableDef.VariableType);
             il.Emit(OpCodes.Ldloc, variableDef);
+        }
+
+        public static MethodReference GetBaseConstructorCall(this MethodDefinition methodDef, bool traverseConstructorChaining = true) {
+            var typeDef = methodDef.DeclaringType;
+            var baseOrThisConstructorCalls = (
+                    from instr in methodDef.Body.Instructions
+                    where instr.OpCode == OpCodes.Call
+                    let callMethodRef = (MethodReference)instr.Operand
+                    let callMethodDef = callMethodRef.TryResolve()
+                    //where callMethodDef != null && callMethodDef.IsConstructor && (callMethodDef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodDef.DeclaringType.IsEqualTo(typeDef)) //Some types had callMethodRef.DeclaringType == null
+                    where callMethodDef != null && callMethodDef.IsConstructor && (callMethodRef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodRef.DeclaringType.IsEqualTo(typeDef))
+                    select new { ConstructorRef = callMethodRef, ConstructorDef = callMethodDef }
+                ).ToList();
+            if (!baseOrThisConstructorCalls.Any()) {
+                return null;
+            }
+            if (baseOrThisConstructorCalls.Count > 1) {
+                System.Diagnostics.Debug.WriteLine(string.Format("Strange: Constructor {0} calls more than one base ({1}) or this ({2}) type constructors: {3}.", methodDef, methodDef.DeclaringType.BaseType, methodDef.DeclaringType), string.Join(", ", baseOrThisConstructorCalls.Select(cc => cc.ConstructorDef.ToString())));
+            }
+            var baseConstructorCall = baseOrThisConstructorCalls.First();
+            if (baseConstructorCall.ConstructorRef.DeclaringType.IsEqualTo(typeDef.BaseType) || !traverseConstructorChaining) {
+                return baseConstructorCall.ConstructorRef;
+            } else {
+                return GetBaseConstructorCall(baseConstructorCall.ConstructorDef, true);
+            }
         }
     }
 }
