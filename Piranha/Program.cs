@@ -27,6 +27,9 @@ namespace Piranha {
             if (verb == PiranhaCommands.RemoveAllReferencesVerb) {
                 new RemoveAllReferencesProcessor().ProcessAssemblyFromFile(options.Input, options.Output);
             }
+            if (verb == PiranhaCommands.MarkAllReferencesRetargetableVerb) {
+                new MarkAllReferencesRetargetableProcessor().ProcessAssemblyFromFile(options.Input, options.Output);
+            }
         }
 
         static void OldMain(string[] args) {
