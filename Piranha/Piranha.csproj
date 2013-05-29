@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
       <Private>True</Private>
