@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CecilExtensions.cs" />
+    <Compile Include="CecilProcessor.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="MethodReferenceEqualityComparer.cs" />
     <Compile Include="TypeReferenceEqualityComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
