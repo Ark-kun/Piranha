@@ -60,6 +60,7 @@
     <Compile Include="RemovePrivateMembersProcessor.cs" />
     <Compile Include="RemoveMethodBodiesProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SetTargetFrameworkProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ark.Cecil\Ark.Cecil.csproj">
