@@ -8,5 +8,10 @@ namespace Ark.Piranha {
             assemblyNameRefs.Clear();
             base.ProcessAssemblyReferences(moduleDef, assemblyNameRefs);
         }
+        
+        public override void ProcessModuleReferences(ModuleDefinition moduleDef, IList<ModuleReference> moduleRefs) {
+            moduleRefs.Clear();
+            base.ProcessModuleReferences(moduleDef, moduleRefs);
+        }
     }
 }
