@@ -73,17 +73,21 @@ namespace Ark.Piranha {
                     }
                 } else {
                     body.Instructions.Clear();
-
                     var il = body.GetILProcessor();
-                    if (methodDef.ReturnType != voidTypeDef) {
+                    var returnType = methodDef.ReturnType;
+                    if (returnType != voidTypeDef) {
                         if (_fixFunctions) {
-                            body.InitLocals = true;
-                            var variableDef = new VariableDefinition("result", methodDef.ReturnType);
-                            body.Variables.Add(variableDef);
+                            if (returnType.IsValueType || returnType.IsGenericParameter) {
+                                body.InitLocals = true;
+                                var variableDef = new VariableDefinition("result", returnType);
+                                body.Variables.Add(variableDef);
 
-                            il.Emit(OpCodes.Ldloca, variableDef);
-                            il.Emit(OpCodes.Initobj, variableDef.VariableType);
-                            il.Emit(OpCodes.Ldloc, variableDef);
+                                il.Emit(OpCodes.Ldloca, variableDef);
+                                il.Emit(OpCodes.Initobj, variableDef.VariableType);
+                                il.Emit(OpCodes.Ldloc, variableDef);
+                            } else {
+                                il.Emit(OpCodes.Ldnull);
+                            }
                             il.Emit(OpCodes.Ret);
                         }
                     } else {
