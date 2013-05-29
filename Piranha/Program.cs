@@ -1,5 +1,6 @@
 ﻿using Ark.Cecil;
 using Ark.Collections;
+using Ark.Piranha;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
@@ -33,74 +34,7 @@ namespace Piranha {
             var usedConstructors = new HashSet<MethodReference>(MethodReferenceEqualityComparer.Default);
 
             //Step 1: Removing all bodies.
-            foreach (var typeDef in assemblyDef.GetTypesIncludingNested()) {
-                var moduleDef = typeDef.Module;
-                var typeSystem = moduleDef.TypeSystem;
-                var voidTypeDef = typeSystem.Void;
-                var valueTypeTypeRef = new TypeReference("System", "ValueType", moduleDef, typeSystem.Corlib);
-
-                foreach (var methodDef in typeDef.Methods) {
-                    Console.WriteLine(methodDef.FullName);
-                    if (methodDef.HasBody) {
-                        var body = methodDef.Body;
-
-                        if (methodDef.IsConstructor && !methodDef.IsStatic && !typeDef.IsValueType) {
-                            //Locating the end of the base constructor call.
-                            var constructorRef = GetBaseConstructorCall(methodDef);
-                            if (constructorRef != null) {
-                                //Removing all other instructions other than the base class constructor call.
-                                //FIX: We should just call the base constructor with default(type) arguments, but it's a bit too challenging for me right now (out, ref, generics etc), so we just preserve the existing call.
-                                //FIX: We should just add (internal) parameterless constructors to all skeleton types that we have control over.
-                                //while (callInstruction.Next != null) {
-                                //    body.Instructions.Remove(callInstruction.Next);
-                                //}
-                                body.Instructions.Clear();
-                                body.ExceptionHandlers.Clear();
-                                body.Variables.Clear();
-                                body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-
-                                foreach (var parameter in constructorRef.Parameters) {
-                                    var parameterType = parameter.ParameterType;
-                                    //var parameterTypeRef = moduleDef.Import(parameterType);
-                                    //////if (!parameterType.IsGenericParameter) {
-                                    //////    if (parameterType.IsGenericInstance) {
-                                    //////        var genericType = parameterType.Resolve();
-                                    //////        moduleDef.Import(genericType);
-                                    //////    } else {
-                                    //////        parameterType = moduleDef.Import(parameterType);
-                                    //////    }
-                                    //////}
-                                    body.EmitDefaultInitializedVariable(parameter.Name, parameterType);
-                                }
-
-                                //body.Instructions.Add(Instruction.Create(OpCodes.Call, constructor));
-                                //body.Instructions.Add(callInstruction);
-                                body.Instructions.Add(Instruction.Create(OpCodes.Call, constructorRef));
-                                usedConstructors.Add(constructorRef); //Workaround to prevent removal of used internal constructors.
-                            } else {
-                                Debug.WriteLine(string.Format("Strange: Constructor {0} doesn't call base type ({1}) constructor.", methodDef, methodDef.DeclaringType.BaseType));
-                            }
-                            body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-                        } else {
-                            body.Instructions.Clear();
-                            body.ExceptionHandlers.Clear();
-                            body.Variables.Clear();
-
-                            var il = body.GetILProcessor();
-                            if (methodDef.ReturnType != voidTypeDef) {
-                                body.InitLocals = true;
-                                var variableDef = new VariableDefinition("result", methodDef.ReturnType);
-                                body.Variables.Add(variableDef);
-
-                                il.Emit(OpCodes.Ldloca, variableDef);
-                                il.Emit(OpCodes.Initobj, variableDef.VariableType);
-                                il.Emit(OpCodes.Ldloc, variableDef);
-                            }
-                            il.Emit(OpCodes.Ret);
-                        }
-                    }
-                }
-            }
+            new RemoveMethodBodiesProcessor().ProcessAssembly(assemblyDef);
 
             DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 1);
 
