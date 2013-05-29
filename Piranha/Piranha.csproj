@@ -57,10 +57,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonOptions.cs" />
+    <Compile Include="CommonCommand.cs" />
+    <Compile Include="MarkAllReferencesRetargetableCommand.cs" />
     <Compile Include="PiranhaCommands.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemoveAllReferencesCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
