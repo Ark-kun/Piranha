@@ -1,12 +1,4 @@
-﻿using Mono.Cecil;
-using Mono.Cecil.Cil;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace Piranha.Tests.TestCases {
     class TestBase {
