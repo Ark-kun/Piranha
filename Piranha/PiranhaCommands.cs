@@ -15,6 +15,9 @@ namespace Piranha {
         [VerbOption("set-target-framework", HelpText = "Set TargetFramework attribute of the assembly")]
         public SetTargetFrameworkCommand SetTargetFramework { get; set; }
 
+        [VerbOption("retarget-references", HelpText = "Retargets references to a new profile")]
+        public RetargetReferencesCommand RetargetReferences { get; set; }
+
         [VerbOption("list-used-types", HelpText = "List all types used by the assembly")]
         public ListUsedTypesCommand ListUsedTypes { get; set; }
 
