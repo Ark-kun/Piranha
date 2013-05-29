@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="CollectUsedTypesProcessor.cs" />
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="MarkAllReferencesRetargetableProcessor.cs" />
     <Compile Include="RemoveAllReferencesProcessor.cs" />
     <Compile Include="RemovePrivateTypesProcessor.cs" />
     <Compile Include="RemovePrivateMembersProcessor.cs" />
