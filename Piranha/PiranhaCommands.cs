@@ -18,6 +18,9 @@ namespace Piranha {
         [VerbOption("remove-private-types", HelpText = "Remove private types")]
         public RemovePrivateTypesCommand RemovePrivateTypes { get; set; }
 
+        [VerbOption("remove-code-members-types", HelpText = "Remove all code, private class members and private types.")]
+        public RemoveCodeMembersTypesCommand RemoveCodeMembersTypes { get; set; }
+
         [VerbOption("mark-all-references-retargetable", HelpText = "Marks all references as retargetable")]
         public MarkAllReferencesRetargetableCommand MarkAllReferencesRetargetable { get; set; }
 

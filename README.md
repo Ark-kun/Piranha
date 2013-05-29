@@ -16,6 +16,7 @@ Usage:
     piranha.exe remove-method-bodies --input library.dll --output library.new.dll
     piranha.exe remove-private-members --input library.new.dll --output library.new2.dll *needs fixing*
     piranha.exe remove-private-types --input library.new2.dll --output library.new3.dll
+    piranha.exe remove-code-members-types --input library.new.dll --output library.new3.dll *== remove-method-bodies + remove-private-members + remove-private-types*
     piranha.exe mark-all-references-retargetable -i library.dll -o library.new.dll
     piranha.exe set-target-framework --profile ".NETPortable,Version=v4.0,Profile=Profile88" -i library.dll -o library.new.dll
     piranha.exe retarget-references --profile ".NETPortable,Version=v4.0,Profile=Profile88" [--remove-others] -i library.dll -o library.new.dll
