@@ -13,6 +13,17 @@ using System.Threading.Tasks;
 namespace Piranha {
     class Program {
         static void Main(string[] args) {
+            object options = null;
+            if (!CommandLine.Parser.Default.ParseArguments(args, new PiranhaCommands(), (v, o) => { options = o; })) {
+                Environment.Exit(CommandLine.Parser.DefaultExitCodeFail);
+            }
+            var removeAllReferencesOptions = options as RemoveAllReferencesOptions;
+            if (removeAllReferencesOptions != null) {
+                new RemoveAllReferencesProcessor().ProcessAssemblyFromFile(removeAllReferencesOptions.Input, removeAllReferencesOptions.Output);
+            }
+        }
+
+        static void OldMain(string[] args) {
             if (args.Length < 1) {
                 Console.WriteLine("Usage: piranha.exe <library>");
                 Environment.Exit(1);
