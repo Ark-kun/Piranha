@@ -132,16 +132,20 @@ namespace Ark.Cecil {
             return true;
         }
 
-        //Procuces invalid code for generic types.
+        //Procuces invalid code for generic value types.
         public static void EmitDefaultInitializedVariable(this MethodBody body, string name, TypeReference type) {
-            body.InitLocals = true;
-            var variableDef = new VariableDefinition(name, type);
-            body.Variables.Add(variableDef);
+            if (type.IsValueType) {
+                body.InitLocals = true;
+                var variableDef = new VariableDefinition(name, type);
+                body.Variables.Add(variableDef);
 
-            var il = body.GetILProcessor();
-            il.Emit(OpCodes.Ldloca, variableDef);
-            il.Emit(OpCodes.Initobj, variableDef.VariableType);
-            il.Emit(OpCodes.Ldloc, variableDef);
+                var il = body.GetILProcessor();
+                il.Emit(OpCodes.Ldloca, variableDef);
+                il.Emit(OpCodes.Initobj, variableDef.VariableType);
+                il.Emit(OpCodes.Ldloc, variableDef);
+            } else {
+                body.Instructions.Add(Instruction.Create(OpCodes.Ldnull));
+            }
         }
 
         public static MethodReference GetBaseConstructorCall(this MethodDefinition methodDef, bool traverseConstructorChaining = true) {
