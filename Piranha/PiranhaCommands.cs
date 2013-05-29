@@ -3,8 +3,10 @@ using CommandLine.Text;
 
 namespace Piranha {
     class PiranhaCommands {
-        [VerbOption("remove-all-references", HelpText = "Remove all references from the assembly")]
-        public RemoveAllReferencesOptions RemoveAllReferences { get; set; }
+        public const string RemoveAllReferencesVerb = "remove-all-references";
+
+        [VerbOption(RemoveAllReferencesVerb, HelpText = "Remove all references from the assembly")]
+        public CommonOptions RemoveAllReferences { get; set; }
 
         [HelpVerbOption]
         public string GetUsage(string verb) {
