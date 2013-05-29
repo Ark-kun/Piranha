@@ -29,7 +29,7 @@ namespace Ark.Piranha {
                 if (methodDef.IsConstructor && !methodDef.IsStatic && !typeDef.IsValueType) {
                     if (_fixConstructors) {
                         //Locating the end of the base constructor call.
-                        var constructorRef = GetBaseConstructorCall(methodDef);
+                        var constructorRef = methodDef.GetBaseConstructorCall();
                         if (constructorRef != null) {
                             //Removing all other instructions other than the base class constructor call.
                             //FIX: We should just call the base constructor with default(type) arguments, but it's a bit too challenging for me right now (out, ref, generics etc), so we just preserve the existing call.
@@ -88,32 +88,6 @@ namespace Ark.Piranha {
                 }
             }
             base.ProcessMethod(methodDef);
-        }
-
-        //!!!!!!!!!!!!!!!!!!!!!!!!!! remove
-        static MethodReference GetBaseConstructorCall(MethodDefinition methodDef, bool traverseConstructorChaining = true) {
-            var typeDef = methodDef.DeclaringType;
-            var baseOrThisConstructorCalls = (
-                    from instr in methodDef.Body.Instructions
-                    where instr.OpCode == OpCodes.Call
-                    let callMethodRef = (MethodReference)instr.Operand
-                    let callMethodDef = callMethodRef.TryResolve()
-                    //where callMethodDef != null && callMethodDef.IsConstructor && (callMethodDef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodDef.DeclaringType.IsEqualTo(typeDef)) //Some types had callMethodRef.DeclaringType == null
-                    where callMethodDef != null && callMethodDef.IsConstructor && (callMethodRef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodRef.DeclaringType.IsEqualTo(typeDef))
-                    select new { ConstructorRef = callMethodRef, ConstructorDef = callMethodDef }
-                ).ToList();
-            if (!baseOrThisConstructorCalls.Any()) {
-                return null;
-            }
-            if (baseOrThisConstructorCalls.Count > 1) {
-                Debug.WriteLine(string.Format("Strange: Constructor {0} calls more than one base ({1}) or this ({2}) type constructors: {3}.", methodDef, methodDef.DeclaringType.BaseType, methodDef.DeclaringType), string.Join(", ", baseOrThisConstructorCalls.Select(cc => cc.ConstructorDef.ToString())));
-            }
-            var baseConstructorCall = baseOrThisConstructorCalls.First();
-            if (baseConstructorCall.ConstructorRef.DeclaringType.IsEqualTo(typeDef.BaseType) || !traverseConstructorChaining) {
-                return baseConstructorCall.ConstructorRef;
-            } else {
-                return GetBaseConstructorCall(baseConstructorCall.ConstructorDef, true);
-            }
         }
     }
 }
