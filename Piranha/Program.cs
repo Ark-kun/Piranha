@@ -12,10 +12,11 @@ namespace Piranha {
     class Program {
         static void Main(string[] args) {
             if (args.Length < 1) {
+                Console.WriteLine("Usage: piranha.exe <library>");
+                Environment.Exit(1);
             }
-            //string inputFileName = args[0];
+            string inputFileName = args[0];
             //string inputFileName = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string inputFileName = "MonoGame.Framework.dll";
             string outputFileBase = Path.GetFileNameWithoutExtension(inputFileName);
             string outputFileName = outputFileBase + ".skeleton.dll";
 
@@ -23,7 +24,7 @@ namespace Piranha {
             var outputStream = File.Create(outputFileName);
 
             var assemblyDef = AssemblyDefinition.ReadAssembly(inputStream, new ReaderParameters() { ReadSymbols = true });
-            assemblyDef.Name.Name += " (Skeleton)";
+            //assemblyDef.Name.Name += " (Skeleton)";
 
             DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 0);
 
@@ -36,13 +37,7 @@ namespace Piranha {
                 var voidTypeDef = typeSystem.Void;
                 var valueTypeTypeRef = new TypeReference("System", "ValueType", moduleDef, typeSystem.Corlib);
 
-                if (typeDef.Name == "MonoGameGLException") {
-                }
-
                 foreach (var methodDef in typeDef.Methods) {
-                    if (methodDef.Name != ".ctor") {
-                        //continue;
-                    }
                     Console.WriteLine(methodDef.FullName);
                     if (methodDef.HasBody) {
                         var body = methodDef.Body;
