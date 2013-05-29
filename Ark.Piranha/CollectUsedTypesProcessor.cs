@@ -1,10 +1,11 @@
-﻿using Mono.Cecil;
+﻿using Ark.Cecil;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Ark.Cecil {
+namespace Ark.Piranha {
     public class CollectUsedTypesProcessor : CecilProcessor {
         HashSet<TypeReference> _usedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
 

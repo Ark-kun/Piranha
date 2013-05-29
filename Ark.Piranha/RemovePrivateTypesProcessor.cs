@@ -1,8 +1,9 @@
-﻿using Mono.Cecil;
+﻿using Ark.Cecil;
+using Mono.Cecil;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ark.Cecil {
+namespace Ark.Piranha {
     public class RemovePrivateTypesProcessor : CecilProcessor {
 
         public override void ProcessModuleTypes(ModuleDefinition moduleDef, IList<TypeDefinition> typeDefs) {

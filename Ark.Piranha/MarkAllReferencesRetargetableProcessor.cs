@@ -1,6 +1,7 @@
-﻿using Mono.Cecil;
+﻿using Ark.Cecil;
+using Mono.Cecil;
 
-namespace Ark.Cecil {
+namespace Ark.Piranha {
     public class MarkAllReferencesRetargetableProcessor : CecilProcessor {
         public override void ProcessAssemblyReference(AssemblyNameReference assemblyNameRef) {
             assemblyNameRef.IsRetargetable = true;

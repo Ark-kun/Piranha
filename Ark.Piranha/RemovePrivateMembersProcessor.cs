@@ -2,8 +2,9 @@
 using Ark.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using Ark.Cecil;
 
-namespace Ark.Cecil {
+namespace Ark.Piranha {
     public class RemovePrivateMembersProcessor : CecilProcessor {
         bool _preserveFieldsOfStructs;
 
