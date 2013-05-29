@@ -15,8 +15,13 @@ namespace Ark.Piranha {
         public ICollection<FieldReference> FieldsToPreserve { get; set; }
         public ICollection<MethodReference> MethodsToPreserve { get; set; }
 
+        public override void ProcessType(TypeDefinition typeDef) {
+            typeDef.Interfaces.RemoveWhere(interfaceRef => !interfaceRef.Resolve().IsPublic);
+            base.ProcessType(typeDef);
+        }
+
         public override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
-            methodDefs.RemoveWhere(methodDef => !methodDef.IsPublic && !methodDef.IsFamily && !(MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)));
+            methodDefs.RemoveWhere(methodDef => !methodDef.IsPublic && !methodDef.IsFamily && !(methodDef.Overrides.Any(over => over.DeclaringType.Resolve().IsPublic) ) && !(MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)));
             base.ProcessMethods(typeDef, methodDefs);
         }
 
@@ -42,6 +47,27 @@ namespace Ark.Piranha {
                 propertyDef.SetMethod = null;
             }
             base.ProcessProperty(propertyDef);
+        }
+
+        public override void ProcessMethod(MethodDefinition methodDef) {
+            //methodDef.Overrides.RemoveWhere(overrideRef => overrideRef.DeclaringType.i)
+            var overrides = methodDef.Overrides;
+            for (int i = overrides.Count - 1; i >= 0; --i) {
+                var declaringType = overrides[i].DeclaringType;
+                if (declaringType != null) {
+                    var resolvedType = declaringType.TryResolve();
+                    if (resolvedType != null) {
+                        if (!resolvedType.IsPublic) {
+                            overrides.RemoveAt(i);
+                        }
+                    } else {
+                        //?
+                    }
+                } else {
+                }
+            }
+
+            base.ProcessMethod(methodDef);
         }
     }
 }
