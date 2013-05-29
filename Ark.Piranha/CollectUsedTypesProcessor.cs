@@ -13,13 +13,68 @@ namespace Ark.Piranha {
             get { return _usedTypes; }
         }
 
+        public IEnumerable<TypeReference> UnresolvedTypes {
+            get { return _usedTypes.Where(type => type.TryResolve() == null); }
+        }
+
         public void DumpToFile(string fileName) {
-            var usedTypes = new HashSet<TypeReference>(UsedTypes.Where(t => t != null).Select(t => t.TryResolve() ?? t), TypeReferenceEqualityComparer.Default);
             using (var usedTypesWriter = File.CreateText(fileName)) {
-                foreach (string fullTypeName in usedTypes.Select(typeRef => "[" + (typeRef.Module == null ? "?" : typeRef.Module.Assembly.Name.Name) + "]" + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
+                foreach (string fullTypeName in _usedTypes.Select(typeRef => (typeRef.TryResolve() != null ? "[" + (typeRef.Module == null ? "?" : typeRef.Module.Assembly.Name.Name) + "]" : "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}") + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
                     usedTypesWriter.WriteLine(fullTypeName);
                 }
             }
+        }
+
+        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+            base.ProcessAssembly(assemblyDef);
+
+            var processedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+            var unprocessedTypes = _usedTypes;
+            do {
+                var newTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+
+                //Removing  generic parameter types
+                unprocessedTypes.RemoveWhere(type => type.IsGenericParameter);
+
+                //Replacing the type references with the resolved type definitions
+                var notResolvedTypes = (
+                        from unresolvedType in unprocessedTypes
+                        let resolvedType = unresolvedType.TryResolve()
+                        where resolvedType != null && resolvedType != unresolvedType
+                        select new { UnresolvedType = unresolvedType, ResolvedType = resolvedType }
+                    ).ToList();
+                foreach (var notResolvedTypePair in notResolvedTypes) {
+                    unprocessedTypes.Remove(notResolvedTypePair.UnresolvedType);
+                    newTypes.Add(notResolvedTypePair.ResolvedType);
+                }
+
+                //Replacing array types with element types
+                var arrays = unprocessedTypes.Where(type => type.IsArray).ToList();
+                foreach (var array in arrays) {
+                    unprocessedTypes.Remove(array);
+                    newTypes.Add(array.GetElementType());
+                }
+
+                //Removing generic type instances and adding their generic types and arguments
+                var genericInstances = unprocessedTypes.Where(type => type.IsGenericInstance).ToList();
+                foreach (GenericInstanceType genericInstance in genericInstances) {
+                    unprocessedTypes.Remove(genericInstance);
+                    var genericType = genericInstance.TryResolve();
+                    if (genericType != null) {
+                        newTypes.Add(genericType);
+                    } else {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Strange: Generic instance type {0} cannot be resolved.", genericInstance));
+                    }
+                    foreach (var genericArgument in genericInstance.GenericArguments) {
+                        newTypes.Add(genericArgument);
+                    }
+                }
+
+                processedTypes.UnionWith(unprocessedTypes);
+                newTypes.ExceptWith(processedTypes);
+                unprocessedTypes = newTypes;
+            } while (unprocessedTypes.Count > 0);
+            _usedTypes = processedTypes;
         }
 
         public override void ProcessType(TypeDefinition typeDef) {
@@ -38,9 +93,7 @@ namespace Ark.Piranha {
         public override void ProcessMethod(MethodDefinition methodDef) {
             _usedTypes.Add(methodDef.ReturnType);
             foreach (var parameter in methodDef.Parameters) {
-                if (parameter.ParameterType.IsGenericParameter) {
-                    _usedTypes.Add(parameter.ParameterType);
-                }
+                _usedTypes.Add(parameter.ParameterType);
             }
             if (methodDef.HasBody) {
                 var body = methodDef.Body;
