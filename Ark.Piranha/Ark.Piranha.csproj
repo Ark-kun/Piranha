@@ -55,6 +55,7 @@
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="FrameworkProfile.cs" />
     <Compile Include="MarkAllReferencesRetargetableProcessor.cs" />
+    <Compile Include="PortableHelpers.cs" />
     <Compile Include="RemoveAllReferencesProcessor.cs" />
     <Compile Include="RemovePrivateTypesProcessor.cs" />
     <Compile Include="RemovePrivateMembersProcessor.cs" />
