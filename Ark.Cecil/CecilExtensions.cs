@@ -5,55 +5,6 @@ using System.Linq;
 
 namespace Ark.Cecil {
     public static class CecilExtensions {
-        public static IEnumerable<TypeReference> GetAllUsedTypes(this AssemblyDefinition assemblyDef) {
-            foreach (var typeDef in assemblyDef.GetTypesIncludingNested()) {
-                foreach (var someTypeDef in GetAllUsedTypes(typeDef)) {
-                    yield return someTypeDef;
-                }
-            }
-        }
-
-        public static IEnumerable<TypeReference> GetAllUsedTypes(this TypeDefinition typeDef) {
-            yield return typeDef;
-
-            if (typeDef.BaseType != null) {
-                yield return typeDef.BaseType;
-            }
-
-            foreach (var fieldDef in typeDef.Fields) {
-                yield return fieldDef.FieldType;
-            }
-
-            foreach (var methodDef in typeDef.Methods) {
-                foreach (var someTypeDef in GetAllUsedTypes(methodDef)) {
-                    yield return someTypeDef;
-                }
-            }
-        }
-
-        public static IEnumerable<TypeReference> GetAllUsedTypes(this MethodDefinition methodDef) {
-            yield return methodDef.ReturnType;
-            foreach (var parameter in methodDef.Parameters) {
-                yield return parameter.ParameterType;
-            }
-            if (methodDef.HasBody) {
-                var body = methodDef.Body;
-                foreach (var variable in body.Variables) {
-                    yield return variable.VariableType;
-                }
-                foreach (var instruction in body.Instructions) {
-                    if (instruction.OpCode == OpCodes.Newobj) {
-                        var newObjTypeRef = ((MemberReference)instruction.Operand).DeclaringType;
-                        yield return newObjTypeRef;
-                    }
-                    if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Calli || instruction.OpCode == OpCodes.Callvirt) {
-                        var callMethodRef = instruction.Operand as MethodReference;
-                        yield return callMethodRef.DeclaringType;
-                    }
-                }
-            }
-        }
-
         public static IEnumerable<TypeDefinition> GetTypesIncludingNested(this AssemblyDefinition assemblyDef) {
             foreach (var moduleDef in assemblyDef.Modules) {
                 foreach (var someTypeDef in moduleDef.GetTypesIncludingNested()) {

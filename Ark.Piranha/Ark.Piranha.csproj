@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectUsedTypesProcessor.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="RemovePrivateTypesProcessor.cs" />
     <Compile Include="RemovePrivateMembersProcessor.cs" />

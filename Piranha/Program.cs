@@ -56,18 +56,9 @@ namespace Piranha {
             assemblyDef.Write(fileNameBase + ".skeleton." + step.ToString() + ".dll");
             assemblyDef.Name.Name = oldName;
 
-            var usedTypes = new HashSet<TypeReference>(assemblyDef.GetAllUsedTypes().Where(t => t != null).Select(t => t.TryResolve() ?? t), TypeReferenceEqualityComparer.Default);
-            using (var usedTypesWriter = File.CreateText(fileNameBase + ".usedTypes." + step.ToString() + ".txt")) {
-                foreach (string fullTypeName in usedTypes.Select(typeRef => "[" + (typeRef.Module == null ? "?" : typeRef.Module.Assembly.Name.Name) + "]" + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
-                    usedTypesWriter.WriteLine(fullTypeName);
-                }
-            }
-            var usedAssemblies = new HashSet<AssemblyDefinition>(usedTypes.Where(typeRef => typeRef.Module != null).Select(typeRef => typeRef.Module.Assembly));
-            using (var usedAssembliesWriter = File.CreateText(fileNameBase + ".usedAssemblies." + step.ToString() + ".txt")) {
-                foreach (var assemblyName in usedAssemblies.Select(a => a.Name.ToString()).OrderBy(_ => _)) {
-                    usedAssembliesWriter.WriteLine(assemblyName);
-                }
-            }
+            var usedTypesCollector = new CollectUsedTypesProcessor();
+            usedTypesCollector.ProcessAssembly(assemblyDef);
+            usedTypesCollector.DumpToFile(fileNameBase + ".usedTypes." + step.ToString() + ".txt");
         }
     }
 }
