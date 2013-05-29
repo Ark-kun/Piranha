@@ -43,15 +43,7 @@ namespace Piranha {
             DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 3);
 
             //Step 4: Removing all private types            
-            foreach (var typeDef in assemblyDef.GetTypesIncludingNested().ToList()) {
-                if (!typeDef.IsPublic) {
-                    if (typeDef.IsNested) {
-                        typeDef.DeclaringType.NestedTypes.Remove(typeDef);
-                    } else {
-                        typeDef.Module.Types.Remove(typeDef);
-                    }
-                }
-            }
+            new RemovePrivateTypesProcessor().ProcessAssembly(assemblyDef);
 
             DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 4);
 

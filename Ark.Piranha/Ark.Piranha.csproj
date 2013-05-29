@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="RemovePrivateTypesProcessor.cs" />
     <Compile Include="RemovePrivateMembersProcessor.cs" />
     <Compile Include="RemoveMethodBodiesProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
