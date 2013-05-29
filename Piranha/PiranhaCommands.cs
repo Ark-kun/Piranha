@@ -9,6 +9,9 @@ namespace Piranha {
         [VerbOption("mark-all-references-retargetable", HelpText = "Marks all references as retargetable")]
         public MarkAllReferencesRetargetableCommand MarkAllReferencesRetargetable { get; set; }
 
+        [VerbOption("set-target-framework", HelpText = "Set TargetFramework attribute of the assembly")]
+        public SetTargetFrameworkCommand SetTargetFramework { get; set; }
+
         [HelpVerbOption]
         public string GetUsage(string verb) {
             return HelpText.AutoBuild(this, verb);
