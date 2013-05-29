@@ -12,6 +12,9 @@ namespace Piranha {
         [VerbOption("set-target-framework", HelpText = "Set TargetFramework attribute of the assembly")]
         public SetTargetFrameworkCommand SetTargetFramework { get; set; }
 
+        [VerbOption("list-used-types", HelpText = "List all types used by the assembly")]
+        public ListUsedTypesCommand ListUsedTypes { get; set; }
+
         [HelpVerbOption]
         public string GetUsage(string verb) {
             return HelpText.AutoBuild(this, verb);

@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonCommand.cs" />
+    <Compile Include="ListUsedTypesCommand.cs" />
     <Compile Include="MarkAllReferencesRetargetableCommand.cs" />
     <Compile Include="PiranhaCommands.cs" />
     <Compile Include="Program.cs" />
