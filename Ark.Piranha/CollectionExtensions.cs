@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ark.Collections {
+namespace Ark.Linq {
     public static class CollectionExtensions {
         public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate) {
             var itemsToRemove = collection.Where(predicate).ToList();

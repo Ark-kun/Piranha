@@ -1,5 +1,4 @@
 ﻿using Ark.Cecil;
-using Ark.Collections;
 using Ark.Piranha;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -38,30 +37,8 @@ namespace Piranha {
 
             DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 1);
 
-            //Step 2: Removing all private fields
-            foreach (var typeDef in assemblyDef.GetTypesIncludingNested()) {
-                typeDef.Fields.RemoveWhere(fieldDef => !fieldDef.IsPublic && !fieldDef.IsFamily);
-            }
-
-            DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 2);
-
-            //Step 3: Removing all private members
-            foreach (var typeDef in assemblyDef.GetTypesIncludingNested()) {
-                //typeDef.Methods.RemoveWhere(methodDef => !methodDef.IsPublic && !methodDef.IsFamily);
-
-                typeDef.Methods.RemoveWhere(methodDef => !methodDef.IsPublic && !methodDef.IsFamily && !(methodDef.IsConstructor && usedConstructors.Contains(methodDef)));
-                foreach (var propertyDef in typeDef.Properties.ToList()) {
-                    if (propertyDef.GetMethod != null && propertyDef.GetMethod.Module == null) {
-                        propertyDef.GetMethod = null;
-                    }
-                    if (propertyDef.SetMethod != null && propertyDef.SetMethod.Module == null) {
-                        propertyDef.SetMethod = null;
-                    }
-                    if (propertyDef.GetMethod == null && propertyDef.SetMethod == null) {
-                        typeDef.Properties.Remove(propertyDef);
-                    }
-                }
-            }
+            //Step 2 and 3: Removing all private members
+            new RemovePrivateMembersProcessor().ProcessAssembly(assemblyDef);
 
             DumpAssemblyAndUsageLists(assemblyDef, outputFileBase, 3);
 
