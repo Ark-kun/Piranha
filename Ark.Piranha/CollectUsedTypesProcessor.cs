@@ -82,6 +82,9 @@ namespace Ark.Piranha {
             if (typeDef.BaseType != null) {
                 _usedTypes.Add(typeDef.BaseType);
             }
+            foreach(var interfaceRef in typeDef.Interfaces) {
+                _usedTypes.Add(interfaceRef);
+            }
             base.ProcessType(typeDef);
         }
 
@@ -112,6 +115,41 @@ namespace Ark.Piranha {
                 }
             }
             base.ProcessMethod(methodDef);
+        }
+
+        public override void ProcessCustomAssemblyAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomAssemblyAttribute(attribute);
+        }
+
+        public override void ProcessCustomModuleAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomModuleAttribute(attribute);
+        }
+
+        public override void ProcessCustomTypeAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomTypeAttribute(attribute);
+        }
+
+        public override void ProcessCustomEventAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomEventAttribute(attribute);
+        }
+
+        public override void ProcessCustomFieldAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomFieldAttribute(attribute);
+        }
+
+        public override void ProcessCustomPropertyAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomPropertyAttribute(attribute);
+        }
+
+        public override void ProcessCustomMethodAttribute(CustomAttribute attribute) {
+            _usedTypes.Add(attribute.AttributeType);
+            base.ProcessCustomMethodAttribute(attribute);
         }
     }
 }
