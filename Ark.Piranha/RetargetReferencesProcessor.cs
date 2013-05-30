@@ -21,9 +21,9 @@ namespace Ark.Piranha {
             for (int i = assemblyNameRefs.Count - 1; i >= 0; --i) {
                 AssemblyNameReference replacement = null;
                 if (_assemblyReplacements.TryGetValue(assemblyNameRefs[i].Name, out replacement)) {
-                    //assemblyNameRefs[i] = replacement;
-                    assemblyNameRefs.RemoveAt(i);
-                    assemblyNameRefs.Add(replacement);
+                    assemblyNameRefs[i] = replacement;
+                    //assemblyNameRefs.RemoveAt(i);
+                    //assemblyNameRefs.Add(replacement);
                 } else {
                     if (_removeOthers) {
                         assemblyNameRefs.RemoveAt(i);
