@@ -45,9 +45,9 @@ namespace Ark.Cecil {
         }
 
         public virtual void ProcessModule(ModuleDefinition moduleDef) {
-            ProcessCustomModuleAttributes(moduleDef, moduleDef.CustomAttributes);
             ProcessAssemblyReferences(moduleDef, moduleDef.AssemblyReferences);
             ProcessModuleReferences(moduleDef, moduleDef.ModuleReferences);
+            ProcessCustomModuleAttributes(moduleDef, moduleDef.CustomAttributes);
             ProcessModuleTypes(moduleDef, moduleDef.Types);
             ProcessExportedTypes(moduleDef, moduleDef.ExportedTypes);
             ProcessResources(moduleDef, moduleDef.Resources);
