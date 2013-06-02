@@ -58,6 +58,7 @@
     <Compile Include="PortableHelpers.cs" />
     <Compile Include="RemoveAllReferencesProcessor.cs" />
     <Compile Include="RemoveAllResourcesProcessor.cs" />
+    <Compile Include="RemovePInvokeMethodsProcessor.cs" />
     <Compile Include="RemovePrivateTypesProcessor.cs" />
     <Compile Include="RemovePrivateMembersProcessor.cs" />
     <Compile Include="RemoveMethodBodiesProcessor.cs" />

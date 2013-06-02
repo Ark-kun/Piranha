@@ -67,6 +67,7 @@
     <Compile Include="RemoveAllResourcesCommand.cs" />
     <Compile Include="RemoveCodeMembersTypesCommand.cs" />
     <Compile Include="RemoveMethodBodiesCommand.cs" />
+    <Compile Include="RemovePInvokeMethodsCommand.cs" />
     <Compile Include="RemovePrivateMembersCommand.cs" />
     <Compile Include="RemovePrivateTypesCommand.cs" />
     <Compile Include="RetargetReferencesCommand.cs" />
