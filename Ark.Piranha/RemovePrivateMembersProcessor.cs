@@ -21,8 +21,19 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
-            methodDefs.RemoveWhere(methodDef => !methodDef.IsPublic && !methodDef.IsFamily && !(methodDef.Overrides.Any(over => over.DeclaringType.Resolve().IsPublic) ) && !(MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)));
+            methodDefs.RemoveWhere(methodDef => !(
+                   methodDef.IsPublic
+                || methodDef.IsFamily
+                || methodDef.IsFamilyOrAssembly
+                || methodDef.Overrides.Any(over => over.DeclaringType.Resolve().IsPublic)
+                || MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)
+                || methodDef.IsConstructor && (methodDef.IsFamilyAndAssembly || methodDef.IsAssembly) && ShouldPreserveInternalConstructor(methodDef)
+            ));
             base.ProcessMethods(typeDef, methodDefs);
+        }
+
+        static bool ShouldPreserveInternalConstructor(MethodDefinition methodDef) {            
+            return !methodDef.HasParameters || methodDef.DeclaringType.GetParameterlessConstructor() == null;
         }
 
         public override void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {

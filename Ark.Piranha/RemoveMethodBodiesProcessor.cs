@@ -1,6 +1,7 @@
 ﻿using Ark.Cecil;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -34,38 +35,32 @@ namespace Ark.Piranha {
                 body.Variables.Clear();
                 if (methodDef.IsConstructor && !methodDef.IsStatic && !typeDef.IsValueType) {
                     if (_fixConstructors) {
-                        //Locating the end of the base constructor call.
-                        var constructorRef = methodDef.GetBaseConstructorCall();
-                        if (constructorRef != null) {
-                            //Removing all other instructions other than the base class constructor call.
-                            //FIX: We should just call the base constructor with default(type) arguments, but it's a bit too challenging for me right now (out, ref, generics etc), so we just preserve the existing call.
-                            //FIX: We should just add (internal) parameterless constructors to all skeleton types that we have control over.
-                            //while (callInstruction.Next != null) {
-                            //    body.Instructions.Remove(callInstruction.Next);
-                            //}
-                            body.Instructions.Clear();
-                            body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
+                        //Searching for a parameterless constructor of the base type.
+                        //If it's not found we search the instructions to locate a call to the base constructor and use that.
+                        TypeReference baseTypeRef = typeDef.BaseType;
 
-                            foreach (var parameter in constructorRef.Parameters) {
-                                var parameterType = parameter.ParameterType;
-                                //var parameterTypeRef = moduleDef.Import(parameterType);
-                                //////if (!parameterType.IsGenericParameter) {
-                                //////    if (parameterType.IsGenericInstance) {
-                                //////        var genericType = parameterType.Resolve();
-                                //////        moduleDef.Import(genericType);
-                                //////    } else {
-                                //////        parameterType = moduleDef.Import(parameterType);
-                                //////    }
-                                //////}
-                                body.EmitDefaultInitializedVariable(parameter.Name, parameterType);
+                        MethodReference baseConstructorRef = null;
+                        if (baseTypeRef != null) {
+                            var baseTypeDef = baseTypeRef.TryResolve();
+                            if(baseTypeDef != null) {
+                                var baseConstructorDef = baseTypeDef.GetParameterlessConstructor();
+                                if(baseConstructorDef != null) {
+                                    baseConstructorRef = (baseTypeRef.IsGenericInstance ? baseConstructorDef.AsMethodOfGenericTypeInstance((GenericInstanceType)baseTypeRef) : baseConstructorDef);
+                                }
                             }
-
-                            //body.Instructions.Add(Instruction.Create(OpCodes.Call, constructor));
-                            //body.Instructions.Add(callInstruction);
-                            body.Instructions.Add(Instruction.Create(OpCodes.Call, constructorRef));
-                            _usedConstructors.Add(constructorRef); //Workaround to prevent removal of used internal constructors.
+                        }
+                        if (baseConstructorRef == null) {
+                            baseConstructorRef = methodDef.GetBaseConstructorCall();
+                            if (baseConstructorRef == null) {
+                                Debug.WriteLine(string.Format("Strange: Constructor {0} doesn't call base type ({1}) constructor.", methodDef, methodDef.DeclaringType.BaseType));
+                            }
+                        }
+                        if (baseConstructorRef != null) {
+                            body.Instructions.Clear();
+                            body.EmitBaseCallWithDefaultArgumentValues(baseConstructorRef);
+                            _usedConstructors.Add(baseConstructorRef); //Workaround to prevent removal of used internal constructors.
                         } else {
-                            Debug.WriteLine(string.Format("Strange: Constructor {0} doesn't call base type ({1}) constructor.", methodDef, methodDef.DeclaringType.BaseType));
+                            throw new Exception(string.Format("Couldn't find base constructor to call from {0} in the {1} base class.", methodDef, baseTypeRef));
                         }
                         body.Instructions.Add(Instruction.Create(OpCodes.Ret));
                     } else {

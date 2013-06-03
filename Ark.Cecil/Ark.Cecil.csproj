@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilProcessor.cs" />
+    <Compile Include="CloneExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="MethodReferenceEqualityComparer.cs" />
     <Compile Include="TypeReferenceEqualityComparer.cs" />

@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -132,11 +133,31 @@ namespace Ark.Cecil {
             return true;
         }
 
+        public static void EmitBaseCallWithDefaultArgumentValues(this MethodBody methodBody, MethodReference methodRef) {
+            if (methodRef != null && methodRef.HasGenericParameters || methodRef.DeclaringType.HasGenericParameters) {
+                throw new ArgumentException("Method reference must not point to a method of a non-closed gereric type.", "methodRef");
+            }
+            methodBody.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
+            methodBody.EmitPushDefaultArgumentValues(methodRef);
+            methodRef = methodBody.Method.Module.Import(methodRef);
+            methodBody.Instructions.Add(Instruction.Create(OpCodes.Call, methodRef));
+        }
+
+        static void EmitPushDefaultArgumentValues(this MethodBody methodBody, MethodReference methodRef) {
+            if (methodRef != null && methodRef.HasGenericParameters || methodRef.DeclaringType.HasGenericParameters) {
+                throw new ArgumentException("Method reference must not point to a method of a non-closed gereric type.", "methodRef");
+            }
+            foreach (var parameter in methodRef.Parameters) {
+                var parameterType = parameter.ParameterType;
+                methodBody.EmitPushDefaultValue(parameterType);
+            }
+        }
+
         //Procuces invalid code for generic value types.
-        public static void EmitDefaultInitializedVariable(this MethodBody body, string name, TypeReference type) {
+        public static void EmitPushDefaultValue(this MethodBody body, TypeReference type) {
             if (type.IsValueType) {
                 body.InitLocals = true;
-                var variableDef = new VariableDefinition(name, type);
+                var variableDef = new VariableDefinition(type);
                 body.Variables.Add(variableDef);
 
                 var il = body.GetILProcessor();
@@ -148,7 +169,14 @@ namespace Ark.Cecil {
             }
         }
 
+        public static IEnumerable<MethodReference> GetBaseConstructorCalls(this TypeDefinition typeDef) {
+            return typeDef.Methods.Where(methodDef => methodDef.IsConstructor && !methodDef.IsStatic).Select(methodDef => methodDef.GetBaseConstructorCall()).Where(methodDef => methodDef != null).Distinct(MethodReferenceEqualityComparer.Default);
+        }
+
         public static MethodReference GetBaseConstructorCall(this MethodDefinition methodDef, bool traverseConstructorChaining = true) {
+            if (methodDef.Body == null) {
+                return null;
+            }
             var typeDef = methodDef.DeclaringType;
             var baseOrThisConstructorCalls = (
                     from instr in methodDef.Body.Instructions
@@ -171,6 +199,43 @@ namespace Ark.Cecil {
             } else {
                 return GetBaseConstructorCall(baseConstructorCall.ConstructorDef, true);
             }
+        }
+
+        public static MethodDefinition GetParameterlessConstructor(this TypeDefinition typeDef) {
+            return typeDef.Methods.SingleOrDefault(methodDef => methodDef.IsConstructor && !methodDef.HasParameters && !methodDef.IsStatic && !methodDef.IsPrivate);
+        }
+
+        public static GenericInstanceType MakeGenericInstanceType(this TypeReference typeRef, params TypeReference[] genericTypeArguments) {
+            if (typeRef == null) {
+                throw new ArgumentNullException("typeRef");
+            }
+            if (genericTypeArguments == null) {
+                throw new ArgumentNullException("genericTypeArguments");
+            }
+            if (genericTypeArguments.Length == 0) {
+                throw new ArgumentException("Generic type arguments list is empty", "genericTypeArguments");
+            }
+            if (typeRef.GenericParameters.Count != genericTypeArguments.Length) {
+                throw new ArgumentException(string.Format("Got {0} generic type arguments instead of {1}", genericTypeArguments.Length, typeRef.GenericParameters.Count), "genericTypeArguments");
+            }
+            GenericInstanceType type = new GenericInstanceType(typeRef);
+            foreach (TypeReference reference in genericTypeArguments) {
+                type.GenericArguments.Add(reference);
+            }
+            return type;
+        }
+
+        public static MethodReference AsMethodOfGenericTypeInstance(this MethodDefinition methodDef, GenericInstanceType genericInstanceType) {
+            if (!genericInstanceType.ElementType.IsEqualTo(methodDef.DeclaringType)) {
+                throw new ArgumentException("The generic instance type doesn't match the method's declaring type.", "genericInstanceType");
+            }
+            var methodRef = methodDef.Clone();
+            methodRef.DeclaringType = genericInstanceType;
+            return methodRef;
+        }
+
+        public static MethodReference WithGenericTypeArguments(this MethodDefinition methodDef, params TypeReference[] genericTypeArguments) {
+            return AsMethodOfGenericTypeInstance(methodDef, methodDef.DeclaringType.MakeGenericInstanceType(genericTypeArguments));
         }
     }
 }
