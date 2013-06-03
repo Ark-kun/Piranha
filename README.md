@@ -21,5 +21,6 @@ Usage:
     piranha.exe remove-pinvoke-methods            -i library.remove-method-bodies.dll              -o library.remove-private-members.dll
     piranha.exe set-target-framework --profile ".NETPortable,Version=v4.0,Profile=Profile88"                   -i library.dll -o library.set-target-framework.dll
     piranha.exe retarget-references  --profile ".NETPortable,Version=v4.0,Profile=Profile88" [--remove-others] -i library.dll -o library.retarget-references.dll
+    piranha.exe retarget-assembly    --profile ".NETPortable,Version=v4.0,Profile=Profile88" [--remove-others] -i library.dll -o library.retarget-assembly.dll
     piranha.exe mark-all-references-retargetable  -i library.dll                                   -o library.mark-all-references-retargetable.dll
     piranha.exe list-used-types                   -i library.dll -o library.UsedTypes.txt
