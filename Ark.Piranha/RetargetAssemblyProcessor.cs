@@ -19,18 +19,9 @@ namespace Ark.Piranha {
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             ((DefaultAssemblyResolver)assemblyDef.MainModule.AssemblyResolver).AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
-            new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).ProcessAssemblyReferences(assemblyDef.MainModule, assemblyDef.MainModule.AssemblyReferences);
+            new SetTargetFrameworkProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
+            new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).ProcessAssembly(assemblyDef);
             base.ProcessAssembly(assemblyDef);
-        }
-
-        public override void ProcessCustomAssemblyAttributes(AssemblyDefinition assemblyDef, IList<CustomAttribute> attributes) {
-            new SetTargetFrameworkProcessor(_frameworkProfile).ProcessCustomAssemblyAttributes(assemblyDef, attributes);
-            base.ProcessCustomAssemblyAttributes(assemblyDef, attributes);
-        }
-
-        public override void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
-            //new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).ProcessAssemblyReferences(moduleDef, assemblyNameRefs);
-            base.ProcessAssemblyReferences(moduleDef, assemblyNameRefs);
         }
     }
 }

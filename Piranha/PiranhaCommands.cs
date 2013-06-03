@@ -35,6 +35,9 @@ namespace Piranha {
 
         [VerbOption("retarget-references", HelpText = "Retargets references to a new profile")]
         public RetargetReferencesCommand RetargetReferences { get; set; }
+        
+        [VerbOption("retarget-assembly", HelpText = "Retargets references to a new profile and changes the TargetProfile attribute")]
+        public RetargetAssemblyCommand RetargetAssembly { get; set; }
 
         [VerbOption("list-used-types", HelpText = "List all types used by the assembly")]
         public ListUsedTypesCommand ListUsedTypes { get; set; }
