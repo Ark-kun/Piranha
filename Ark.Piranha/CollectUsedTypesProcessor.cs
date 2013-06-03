@@ -26,6 +26,18 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+            var targetFrameworkAttribute = assemblyDef.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.FullName == "System.Runtime.Versioning.TargetFrameworkAttribute");
+            if (targetFrameworkAttribute != null) {
+                var frameworkName = (string)targetFrameworkAttribute.ConstructorArguments.First().Value;
+                var frameworkProfile = Ark.DotNet.FrameworkProfile.Parse(frameworkName);
+                foreach (var moduleDef in assemblyDef.Modules) {
+                    var resolver = moduleDef.AssemblyResolver as DefaultAssemblyResolver;
+                    if (resolver != null) {
+                        resolver.AddSearchDirectory(frameworkProfile.ReferencesDirectory);
+                    }
+                }
+            }
+
             base.ProcessAssembly(assemblyDef);
 
             var processedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
