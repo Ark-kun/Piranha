@@ -19,7 +19,7 @@ namespace Ark.Piranha {
 
         public void DumpToFile(string fileName) {
             using (var usedTypesWriter = File.CreateText(fileName)) {
-                foreach (string fullTypeName in _usedTypes.Select(typeRef => (typeRef.TryResolve() != null ? "[" + (typeRef.Module == null ? "?" : typeRef.Module.Assembly.Name.Name) + "]" : "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}") + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
+                foreach (string fullTypeName in _usedTypes.Select(typeRef => (typeRef.TryResolve() != null ? "[" + (typeRef.Module == null ? "?" : typeRef.Module.Assembly.FullName) + "]" : "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}") + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
                     usedTypesWriter.WriteLine(fullTypeName);
                 }
             }
