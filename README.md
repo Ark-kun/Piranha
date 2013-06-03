@@ -11,15 +11,15 @@ Requirements:
 
 Usage:
 
-    //piranha.exe remove-all-references          --input library.dll                        --output library.remove-all-references.dll #Useless. Crashes.
-    piranha.exe remove-all-resources             --input library.dll                        --output library.remove-all-resources.dll
-    piranha.exe ensure-parameterless-constructors --input library.dll                       --output library.ensure-parameterless-constructors.dll
-    piranha.exe remove-method-bodies             --input library.ensure-parameterless-constructors.dll --output library.remove-method-bodies.dll
-    piranha.exe remove-private-members           --input library.remove-method-bodies.dll   --output library.remove-private-members.dll
-    piranha.exe remove-private-types             --input library.remove-private-members.dll --output library.remove-private-types.dll
-    piranha.exe remove-code-members-types        --input library.dll                        --output library.remove-code-members-types.dll #same as remove-method-bodies + remove-private-members + remove-private-types
-    piranha.exe remove-pinvoke-methods           --input library.remove-method-bodies.dll   --output library.remove-private-members.dll
-    piranha.exe mark-all-references-retargetable --input library.dll                        --output library.new.dll
-    piranha.exe set-target-framework             --profile ".NETPortable,Version=v4.0,Profile=Profile88"                   --input library.dll --output library.set-target-framework.dll
-    piranha.exe retarget-references              --profile ".NETPortable,Version=v4.0,Profile=Profile88" [--remove-others] --input library.dll --output library.retarget-references.dll
-    piranha.exe list-used-types                  --input library.dll --output library.UsedTypes.txt
+    //piranha.exe remove-all-references           -i library.dll                                   -o library.remove-all-references.dll #Useless. Crashes.
+    piranha.exe remove-all-resources              -i library.dll                                   -o library.remove-all-resources.dll
+    piranha.exe ensure-parameterless-constructors -i library.dll                                   -o library.ensure-parameterless-constructors.dll
+    piranha.exe remove-method-bodies              -i library.ensure-parameterless-constructors.dll -o library.remove-method-bodies.dll
+    piranha.exe remove-private-members --preserve-fields-of-structs -i library.remove-method-bodies.dll -o library.remove-private-members.dll
+    piranha.exe remove-private-types              -i library.remove-private-members.dll            -o library.remove-private-types.dll
+    piranha.exe remove-code-members-types         -i library.dll                                   -o library.remove-code-members-types.dll #same as remove-method-bodies + remove-private-members + remove-private-types
+    piranha.exe remove-pinvoke-methods            -i library.remove-method-bodies.dll              -o library.remove-private-members.dll
+    piranha.exe set-target-framework --profile ".NETPortable,Version=v4.0,Profile=Profile88"                   -i library.dll -o library.set-target-framework.dll
+    piranha.exe retarget-references  --profile ".NETPortable,Version=v4.0,Profile=Profile88" [--remove-others] -i library.dll -o library.retarget-references.dll
+    piranha.exe mark-all-references-retargetable  -i library.dll                                   -o library.mark-all-references-retargetable.dll
+    piranha.exe list-used-types                   -i library.dll -o library.UsedTypes.txt
