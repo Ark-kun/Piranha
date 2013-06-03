@@ -1,4 +1,5 @@
 ﻿using Mono.Cecil;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,12 +10,12 @@ namespace Ark.DotNet {
         public static List<AssemblyNameReference> GetFrameworkAssemblies(this FrameworkProfile frameworkProfile) {
             var frameworkListXml = XDocument.Load(Path.Combine(frameworkProfile.ReferencesDirectory, "RedistList", "FrameworkList.xml"));
             var assemblies = frameworkListXml.Descendants("File").Select(element => AssemblyNameReference.Parse(element.Attribute("AssemblyName").Value + ", " + string.Join(", ", element.Attributes().Select(a => a.Name + "=" + a.Value)))).ToList();
-
-            if (frameworkProfile.IsPortable) {
-                foreach (var assemblyName in assemblies) {
-                    assemblyName.IsRetargetable = true;
-                    //assemblyName.Culture = null;
+            
+            foreach (var assemblyName in assemblies) {
+                if(assemblyName.Culture.Equals("neutral", StringComparison.InvariantCultureIgnoreCase)) {
+                    assemblyName.Culture = null;
                 }
+                assemblyName.IsRetargetable = frameworkProfile.IsPortable;
             }
             return assemblies;
         }
