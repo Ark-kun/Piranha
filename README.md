@@ -13,7 +13,8 @@ Usage:
 
     //piranha.exe remove-all-references          --input library.dll                        --output library.remove-all-references.dll #Useless. Crashes.
     piranha.exe remove-all-resources             --input library.dll                        --output library.remove-all-resources.dll
-    piranha.exe remove-method-bodies             --input library.dll                        --output library.new.dll
+    piranha.exe ensure-parameterless-constructors --input library.dll                       --output library.ensure-parameterless-constructors.dll
+    piranha.exe remove-method-bodies             --input library.ensure-parameterless-constructors.dll --output library.remove-method-bodies.dll
     piranha.exe remove-private-members           --input library.remove-method-bodies.dll   --output library.remove-private-members.dll
     piranha.exe remove-private-types             --input library.remove-private-members.dll --output library.remove-private-types.dll
     piranha.exe remove-code-members-types        --input library.dll                        --output library.remove-code-members-types.dll #same as remove-method-bodies + remove-private-members + remove-private-types

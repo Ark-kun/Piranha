@@ -9,6 +9,9 @@ namespace Piranha {
         [VerbOption("remove-all-resources", HelpText = "Remove all assembly resources")]
         public RemoveAllResourcesCommand RemoveAllResources { get; set; }
 
+        [VerbOption("ensure-parameterless-constructors", HelpText = "Adds constructors to ensure that every type has public, protected or internal parameterless constructor.")]
+        public EnsureParameterlessConstructorsCommand EnsureParameterlessConstructors { get; set; }
+
         [VerbOption("remove-method-bodies", HelpText = "Remove all code")]
         public RemoveMethodBodiesCommand RemoveMethodBodies { get; set; }
 
