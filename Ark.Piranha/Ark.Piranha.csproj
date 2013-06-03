@@ -55,6 +55,7 @@
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="EnsureParameterlessConstructorsProcessor.cs" />
     <Compile Include="FrameworkProfile.cs" />
+    <Compile Include="MakeSkeletonProcessor.cs" />
     <Compile Include="MarkAllReferencesRetargetableProcessor.cs" />
     <Compile Include="PortableHelpers.cs" />
     <Compile Include="RemoveAllReferencesProcessor.cs" />

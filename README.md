@@ -17,7 +17,7 @@ Usage:
     piranha.exe remove-method-bodies              -i library.ensure-parameterless-constructors.dll -o library.remove-method-bodies.dll
     piranha.exe remove-private-members --preserve-fields-of-structs -i library.remove-method-bodies.dll -o library.remove-private-members.dll
     piranha.exe remove-private-types              -i library.remove-private-members.dll            -o library.remove-private-types.dll
-    piranha.exe remove-code-members-types         -i library.dll                                   -o library.remove-code-members-types.dll #same as remove-method-bodies + remove-private-members + remove-private-types
+    piranha.exe make-skeleton --enable-breaking-verification -i library.dll                        -o library.make-skeleton.dll #same as ensure-parameterless-constructors + remove-method-bodies + remove-private-members + remove-private-types
     piranha.exe remove-pinvoke-methods            -i library.remove-method-bodies.dll              -o library.remove-private-members.dll
     piranha.exe set-target-framework --profile ".NETPortable,Version=v4.0,Profile=Profile88"                   -i library.dll -o library.set-target-framework.dll
     piranha.exe retarget-references  --profile ".NETPortable,Version=v4.0,Profile=Profile88" [--remove-others] -i library.dll -o library.retarget-references.dll
