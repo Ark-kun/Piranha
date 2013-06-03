@@ -12,8 +12,8 @@ namespace Ark.DotNet {
             var assemblies = frameworkListXml.Descendants("File").Select(element => AssemblyNameReference.Parse(element.Attribute("AssemblyName").Value + ", " + string.Join(", ", element.Attributes().Select(a => a.Name + "=" + a.Value)))).ToList();
             
             foreach (var assemblyName in assemblies) {
-                if(assemblyName.Culture.Equals("neutral", StringComparison.InvariantCultureIgnoreCase)) {
-                    assemblyName.Culture = null;
+                if (assemblyName.Culture.Equals("neutral", StringComparison.InvariantCultureIgnoreCase)) {
+                    assemblyName.Culture = "WTF?";
                 }
                 assemblyName.IsRetargetable = frameworkProfile.IsPortable;
             }
