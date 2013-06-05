@@ -2,24 +2,31 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
 namespace Ark.Piranha {
     public class CollectUsedTypesProcessor : CecilProcessor {
-        HashSet<TypeReference> _usedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+        HashSet<TypeReference> _usedTypeReferences = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+        HashSet<TypeDefinition> _usedTypes;
+        HashSet<TypeReference> _unresolvedTypes;
 
-        public ISet<TypeReference> UsedTypes {
+        public ISet<TypeDefinition> UsedTypes {
             get { return _usedTypes; }
         }
 
-        public IEnumerable<TypeReference> UnresolvedTypes {
-            get { return _usedTypes.Where(type => type.TryResolve() == null); }
+        public ISet<TypeReference> UnresolvedTypes {
+            get { return _unresolvedTypes; }
         }
 
         public void DumpToFile(string fileName) {
             using (var usedTypesWriter = File.CreateText(fileName)) {
-                foreach (string fullTypeName in _usedTypes.Select(typeRef => (typeRef.TryResolve() != null ? "[" + (typeRef.Module == null ? "?" : typeRef.Module.Assembly.FullName) + "]" : "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}") + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
+
+                foreach (string fullTypeName in _usedTypes.Select(typeDef => "[" + (typeDef.Module == null ? "?" : typeDef.Module.Assembly.FullName) + "]" + typeDef.FullName).OrderBy(tn => tn).Distinct()) {
+                    usedTypesWriter.WriteLine(fullTypeName);
+                }
+                foreach (string fullTypeName in _unresolvedTypes.Select(typeRef => "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}" + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
                     usedTypesWriter.WriteLine(fullTypeName);
                 }
             }
@@ -40,89 +47,113 @@ namespace Ark.Piranha {
 
             base.ProcessAssembly(assemblyDef);
 
-            var processedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
-            var unprocessedTypes = _usedTypes;
-            do {
-                var newTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+            var processedTypes = new HashSet<TypeDefinition>();
+            var unresolvedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+            var unprocessedTypes = new Queue<TypeReference>(_usedTypeReferences);
 
-                //Removing  generic parameter types
-                unprocessedTypes.RemoveWhere(type => type.IsGenericParameter);
+            while (unprocessedTypes.Any()) {
+                var typeRef = unprocessedTypes.Dequeue();
 
-                //Replacing the type references with the resolved type definitions
-                var notResolvedTypes = (
-                        from unresolvedType in unprocessedTypes
-                        let resolvedType = unresolvedType.TryResolve()
-                        where resolvedType != null && resolvedType != unresolvedType
-                        select new { UnresolvedType = unresolvedType, ResolvedType = resolvedType }
-                    ).ToList();
-                foreach (var notResolvedTypePair in notResolvedTypes) {
-                    unprocessedTypes.Remove(notResolvedTypePair.UnresolvedType);
-                    newTypes.Add(notResolvedTypePair.ResolvedType);
+                if (typeRef == null) {
+                    continue;
                 }
 
-                //Replacing array types with element types
-                var arrays = unprocessedTypes.Where(type => type.IsArray).ToList();
-                foreach (var array in arrays) {
-                    unprocessedTypes.Remove(array);
-                    newTypes.Add(array.GetElementType());
+                if (typeRef.IsGenericParameter) {
+                    continue;
                 }
 
-                //Removing generic type instances and adding their generic types and arguments
-                var genericInstances = unprocessedTypes.Where(type => type.IsGenericInstance).ToList();
-                foreach (GenericInstanceType genericInstance in genericInstances) {
-                    unprocessedTypes.Remove(genericInstance);
-                    var genericType = genericInstance.TryResolve();
-                    if (genericType != null) {
-                        newTypes.Add(genericType);
+                var typeSpec = typeRef as TypeSpecification;
+                if (typeSpec != null) {
+                    var elementType = typeSpec.ElementType;
+                    Debug.Assert(elementType != null);
+                    unprocessedTypes.Enqueue(elementType);
+
+                    var genericInstanceTypeRef = typeRef as GenericInstanceType;
+                    if (genericInstanceTypeRef != null) {
+                        foreach (var genericArgument in genericInstanceTypeRef.GenericArguments) {
+                            unprocessedTypes.Enqueue(genericArgument);
+                        }
+                    }
+
+                    var requiredModifierTypeRef = typeRef as RequiredModifierType;
+                    if (requiredModifierTypeRef != null) {
+                        unprocessedTypes.Enqueue(requiredModifierTypeRef.ModifierType);
+                    }
+
+                    var optionalModifierTypeRef = typeRef as OptionalModifierType;
+                    if (optionalModifierTypeRef != null) {
+                        unprocessedTypes.Enqueue(optionalModifierTypeRef.ModifierType);
+                    }
+
+                    var functionPointerTypeRef = typeRef as FunctionPointerType;
+                    if (functionPointerTypeRef != null) {
+                        unprocessedTypes.Enqueue(functionPointerTypeRef.ReturnType);
+                        foreach (var parameter in functionPointerTypeRef.Parameters) {
+                            unprocessedTypes.Equals(parameter.ParameterType);
+                            foreach (var customAttr in parameter.CustomAttributes) {
+                                unprocessedTypes.Enqueue(customAttr.AttributeType);
+                            }
+                        }
+                        foreach (var customAttr in functionPointerTypeRef.MethodReturnType.CustomAttributes) {
+                            unprocessedTypes.Enqueue(customAttr.AttributeType);
+                        }
+                    }
+                    continue;
+                }
+
+                var typeDef = typeRef as TypeDefinition;
+                if (typeDef == null) {
+                    typeDef = typeRef.TryResolve();
+                    if (typeDef != null) {
+                        unprocessedTypes.Enqueue(typeDef);
                     } else {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Strange: Generic instance type {0} cannot be resolved.", genericInstance));
+                        unresolvedTypes.Add(typeRef);
+                        Debug.WriteLine(string.Format("Cannot resolve type {0}", typeRef.FullName));
                     }
-                    foreach (var genericArgument in genericInstance.GenericArguments) {
-                        newTypes.Add(genericArgument);
-                    }
+                    continue;
                 }
 
-                processedTypes.UnionWith(unprocessedTypes);
-                newTypes.ExceptWith(processedTypes);
-                unprocessedTypes = newTypes;
-            } while (unprocessedTypes.Count > 0);
+                processedTypes.Add(typeDef);
+            }
             _usedTypes = processedTypes;
+            _unresolvedTypes = unresolvedTypes;
         }
 
         public override void ProcessType(TypeDefinition typeDef) {
-            _usedTypes.Add(typeDef);
+            _usedTypeReferences.Add(typeDef);
             if (typeDef.BaseType != null) {
-                _usedTypes.Add(typeDef.BaseType);
+                _usedTypeReferences.Add(typeDef.BaseType);
             }
-            foreach(var interfaceRef in typeDef.Interfaces) {
-                _usedTypes.Add(interfaceRef);
+            foreach (var interfaceRef in typeDef.Interfaces) {
+                _usedTypeReferences.Add(interfaceRef);
             }
             base.ProcessType(typeDef);
         }
 
         public override void ProcessField(FieldDefinition fieldDef) {
-            _usedTypes.Add(fieldDef.FieldType);
+            _usedTypeReferences.Add(fieldDef.FieldType);
             base.ProcessField(fieldDef);
         }
 
         public override void ProcessMethod(MethodDefinition methodDef) {
-            _usedTypes.Add(methodDef.ReturnType);
+            _usedTypeReferences.Add(methodDef.ReturnType);
             foreach (var parameter in methodDef.Parameters) {
-                _usedTypes.Add(parameter.ParameterType);
+                _usedTypeReferences.Add(parameter.ParameterType);
             }
             if (methodDef.HasBody) {
                 var body = methodDef.Body;
                 foreach (var variable in body.Variables) {
-                    _usedTypes.Add(variable.VariableType);
+                    _usedTypeReferences.Add(variable.VariableType);
                 }
                 foreach (var instruction in body.Instructions) {
                     if (instruction.OpCode == OpCodes.Newobj) {
                         var newObjTypeRef = ((MemberReference)instruction.Operand).DeclaringType;
-                        _usedTypes.Add(newObjTypeRef);
+                        _usedTypeReferences.Add(newObjTypeRef);
                     }
                     if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Calli || instruction.OpCode == OpCodes.Callvirt) {
                         var callMethodRef = instruction.Operand as MethodReference;
-                        _usedTypes.Add(callMethodRef.DeclaringType);
+                        _usedTypeReferences.Add(callMethodRef.DeclaringType);
+                        //TODO: Process method signature.
                     }
                 }
             }
@@ -130,7 +161,7 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessCustomAttribute(CustomAttribute attribute, IMetadataTokenProvider owner) {
-            _usedTypes.Add(attribute.AttributeType);
+            _usedTypeReferences.Add(attribute.AttributeType);
             base.ProcessCustomAttribute(attribute, owner);
         }
     }
