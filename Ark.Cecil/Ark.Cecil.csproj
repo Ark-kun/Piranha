@@ -47,6 +47,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReferenceSearchingMetadataResolver.cs" />
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilProcessor.cs" />
     <Compile Include="CloneExtensions.cs" />
