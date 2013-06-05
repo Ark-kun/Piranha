@@ -5,9 +5,18 @@ using System.Linq;
 namespace Ark.Linq {
     public static class CollectionExtensions {
         public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate) {
-            var itemsToRemove = collection.Where(predicate).ToList();
-            foreach (var item in itemsToRemove) {
-                collection.Remove(item);
+            var list = collection as IList<T>;
+            if (list != null) {
+                for (int i = list.Count - 1; i >= 0; --i) {
+                    if (predicate(list[i])) {
+                        list.RemoveAt(i);
+                    }
+                }
+            } else {
+                var itemsToRemove = collection.Where(predicate).ToList();
+                foreach (var item in itemsToRemove) {
+                    collection.Remove(item);
+                }
             }
         }
 
