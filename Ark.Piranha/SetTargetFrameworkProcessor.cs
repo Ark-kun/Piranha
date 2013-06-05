@@ -1,8 +1,8 @@
 ﻿using Ark.Cecil;
 using Ark.DotNet;
+using Ark.Linq;
 using Mono.Cecil;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Versioning;
 
 namespace Ark.Piranha {
@@ -17,18 +17,15 @@ namespace Ark.Piranha {
             : this(frameworkProfile.FullName) {
         }
 
-        public override void ProcessCustomAssemblyAttributes(AssemblyDefinition assemblyDef, IList<CustomAttribute> attributes) {
+        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             MethodReference attributeConstructor = assemblyDef.MainModule.Import(typeof(TargetFrameworkAttribute).GetConstructor(new Type[] { typeof(string) }));
             var targetFrameworkAttribute = new CustomAttribute(attributeConstructor);
             targetFrameworkAttribute.ConstructorArguments.Add(new CustomAttributeArgument(assemblyDef.MainModule.TypeSystem.String, _frameworkProfile));
 
-            for (int i = attributes.Count - 1; i >= 0; --i) {
-                if (attributes[i].AttributeType.IsEqualTo(targetFrameworkAttribute.AttributeType)) {
-                    attributes.RemoveAt(i);
-                }
-            }
-            attributes.Add(targetFrameworkAttribute);
-            base.ProcessCustomAssemblyAttributes(assemblyDef, attributes);
+            assemblyDef.CustomAttributes.RemoveWhere(attr => attr.AttributeType.IsEqualTo(targetFrameworkAttribute.AttributeType));
+            assemblyDef.CustomAttributes.Add(targetFrameworkAttribute);
+
+            base.ProcessAssembly(assemblyDef);
         }
     }
 }
