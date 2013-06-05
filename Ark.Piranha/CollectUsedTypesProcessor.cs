@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Ark.Piranha {
     public class CollectUsedTypesProcessor : CecilProcessor {
-        HashSet<TypeReference> _usedTypeReferences = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
+        HashSet<TypeReference> _usedTypeReferences;
         HashSet<TypeDefinition> _usedTypes;
         HashSet<TypeReference> _unresolvedTypes;
 
@@ -45,11 +45,13 @@ namespace Ark.Piranha {
                 }
             }
 
+            _usedTypeReferences = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
             base.ProcessAssembly(assemblyDef);
+            var unprocessedTypes = new Queue<TypeReference>(_usedTypeReferences);
+            _usedTypeReferences = null;
 
             var processedTypes = new HashSet<TypeDefinition>();
             var unresolvedTypes = new HashSet<TypeReference>(TypeReferenceEqualityComparer.Default);
-            var unprocessedTypes = new Queue<TypeReference>(_usedTypeReferences);
 
             while (unprocessedTypes.Any()) {
                 var typeRef = unprocessedTypes.Dequeue();
@@ -119,40 +121,44 @@ namespace Ark.Piranha {
             _unresolvedTypes = unresolvedTypes;
         }
 
+        void ProcessFoundType(TypeReference typeRef) {
+            _usedTypeReferences.Add(typeRef);
+        }
+
         public override void ProcessType(TypeDefinition typeDef) {
-            _usedTypeReferences.Add(typeDef);
+            ProcessFoundType(typeDef);
             if (typeDef.BaseType != null) {
-                _usedTypeReferences.Add(typeDef.BaseType);
+                ProcessFoundType(typeDef.BaseType);
             }
             foreach (var interfaceRef in typeDef.Interfaces) {
-                _usedTypeReferences.Add(interfaceRef);
+                ProcessFoundType(interfaceRef);
             }
             base.ProcessType(typeDef);
         }
 
         public override void ProcessField(FieldDefinition fieldDef) {
-            _usedTypeReferences.Add(fieldDef.FieldType);
+            ProcessFoundType(fieldDef.FieldType);
             base.ProcessField(fieldDef);
         }
 
         public override void ProcessMethod(MethodDefinition methodDef) {
-            _usedTypeReferences.Add(methodDef.ReturnType);
+            ProcessFoundType(methodDef.ReturnType);
             foreach (var parameter in methodDef.Parameters) {
-                _usedTypeReferences.Add(parameter.ParameterType);
+                ProcessFoundType(parameter.ParameterType);
             }
             if (methodDef.HasBody) {
                 var body = methodDef.Body;
                 foreach (var variable in body.Variables) {
-                    _usedTypeReferences.Add(variable.VariableType);
+                    ProcessFoundType(variable.VariableType);
                 }
                 foreach (var instruction in body.Instructions) {
                     if (instruction.OpCode == OpCodes.Newobj) {
                         var newObjTypeRef = ((MemberReference)instruction.Operand).DeclaringType;
-                        _usedTypeReferences.Add(newObjTypeRef);
+                        ProcessFoundType(newObjTypeRef);
                     }
                     if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Calli || instruction.OpCode == OpCodes.Callvirt) {
                         var callMethodRef = instruction.Operand as MethodReference;
-                        _usedTypeReferences.Add(callMethodRef.DeclaringType);
+                        ProcessFoundType(callMethodRef.DeclaringType);
                         //TODO: Process method signature.
                     }
                 }
@@ -161,7 +167,7 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessCustomAttribute(CustomAttribute attribute, IMetadataTokenProvider owner) {
-            _usedTypeReferences.Add(attribute.AttributeType);
+            ProcessFoundType(attribute.AttributeType);
             base.ProcessCustomAttribute(attribute, owner);
         }
     }
