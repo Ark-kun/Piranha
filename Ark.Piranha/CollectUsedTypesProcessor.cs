@@ -129,39 +129,9 @@ namespace Ark.Piranha {
             base.ProcessMethod(methodDef);
         }
 
-        public override void ProcessCustomAssemblyAttribute(CustomAttribute attribute) {
+        public override void ProcessCustomAttribute(CustomAttribute attribute, IMetadataTokenProvider owner) {
             _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomAssemblyAttribute(attribute);
-        }
-
-        public override void ProcessCustomModuleAttribute(CustomAttribute attribute) {
-            _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomModuleAttribute(attribute);
-        }
-
-        public override void ProcessCustomTypeAttribute(CustomAttribute attribute) {
-            _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomTypeAttribute(attribute);
-        }
-
-        public override void ProcessCustomEventAttribute(CustomAttribute attribute) {
-            _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomEventAttribute(attribute);
-        }
-
-        public override void ProcessCustomFieldAttribute(CustomAttribute attribute) {
-            _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomFieldAttribute(attribute);
-        }
-
-        public override void ProcessCustomPropertyAttribute(CustomAttribute attribute) {
-            _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomPropertyAttribute(attribute);
-        }
-
-        public override void ProcessCustomMethodAttribute(CustomAttribute attribute) {
-            _usedTypes.Add(attribute.AttributeType);
-            base.ProcessCustomMethodAttribute(attribute);
+            base.ProcessCustomAttribute(attribute, owner);
         }
     }
 }

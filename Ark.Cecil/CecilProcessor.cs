@@ -31,14 +31,8 @@ namespace Ark.Cecil {
 
         public virtual void ProcessAssembly(AssemblyDefinition assemblyDef) {
             ProcessModules(assemblyDef, assemblyDef.Modules);
-            ProcessCustomAssemblyAttributes(assemblyDef, assemblyDef.CustomAttributes);
+            ProcessCustomAttributes(assemblyDef.CustomAttributes, assemblyDef);
         }
-
-        public virtual void ProcessCustomAssemblyAttributes(AssemblyDefinition assemblyDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomAssemblyAttribute);
-        }
-
-        public virtual void ProcessCustomAssemblyAttribute(CustomAttribute attribute) { }
 
         public virtual void ProcessModules(AssemblyDefinition assemblyDef, IList<ModuleDefinition> moduleDefs) {
             moduleDefs.ForEach(ProcessModule);
@@ -47,17 +41,11 @@ namespace Ark.Cecil {
         public virtual void ProcessModule(ModuleDefinition moduleDef) {
             ProcessAssemblyReferences(moduleDef, moduleDef.AssemblyReferences);
             ProcessModuleReferences(moduleDef, moduleDef.ModuleReferences);
-            ProcessCustomModuleAttributes(moduleDef, moduleDef.CustomAttributes);
+            ProcessCustomAttributes(moduleDef.CustomAttributes, moduleDef);
             ProcessModuleTypes(moduleDef, moduleDef.Types);
             ProcessExportedTypes(moduleDef, moduleDef.ExportedTypes);
             ProcessResources(moduleDef, moduleDef.Resources);
         }
-        
-        public virtual void ProcessCustomModuleAttributes(ModuleDefinition moduleDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomModuleAttribute);
-        }
-
-        public virtual void ProcessCustomModuleAttribute(CustomAttribute attribute) { }
 
         public virtual void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
             assemblyNameRefs.ForEach(ProcessAssemblyReference);
@@ -97,73 +85,49 @@ namespace Ark.Cecil {
         }
 
         public virtual void ProcessType(TypeDefinition typeDef) {
-            ProcessCustomTypeAttributes(typeDef, typeDef.CustomAttributes);
+            ProcessCustomAttributes(typeDef.CustomAttributes, typeDef);
             ProcessFields(typeDef, typeDef.Fields);
             ProcessMethods(typeDef, typeDef.Methods);
             ProcessProperties(typeDef, typeDef.Properties);
             ProcessEvents(typeDef, typeDef.Events);
         }
 
-        public virtual void ProcessCustomTypeAttributes(TypeDefinition typeDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomTypeAttribute);
-        }
-
-        public virtual void ProcessCustomTypeAttribute(CustomAttribute attribute) { }
-
         public virtual void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
             fieldDefs.ForEach(ProcessField);
         }
 
         public virtual void ProcessField(FieldDefinition fieldDef) {
-            ProcessCustomFieldAttributes(fieldDef, fieldDef.CustomAttributes);
+            ProcessCustomAttributes(fieldDef.CustomAttributes, fieldDef);
         }
-
-        public virtual void ProcessCustomFieldAttributes(FieldDefinition fieldDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomFieldAttribute);
-        }
-
-        public virtual void ProcessCustomFieldAttribute(CustomAttribute attribute) { }
 
         public virtual void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
             propertyDefs.ForEach(ProcessProperty);
         }
 
         public virtual void ProcessProperty(PropertyDefinition propertyDef) {
-            ProcessCustomPropertyAttributes(propertyDef, propertyDef.CustomAttributes);
+            ProcessCustomAttributes(propertyDef.CustomAttributes, propertyDef);
         }
-
-        public virtual void ProcessCustomPropertyAttributes(PropertyDefinition propertyDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomPropertyAttribute);
-        }
-
-        public virtual void ProcessCustomPropertyAttribute(CustomAttribute attribute) { }
 
         public virtual void ProcessEvents(TypeDefinition typeDef, IList<EventDefinition> eventDefs) {
             eventDefs.ForEach(ProcessEvent);
         }
 
         public virtual void ProcessEvent(EventDefinition eventDef) {
-            ProcessCustomEventAttributes(eventDef, eventDef.CustomAttributes);
+            ProcessCustomAttributes(eventDef.CustomAttributes, eventDef);
         }
-
-        public virtual void ProcessCustomEventAttributes(EventDefinition eventDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomEventAttribute);
-        }
-
-        public virtual void ProcessCustomEventAttribute(CustomAttribute attribute) { }
 
         public virtual void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
             methodDefs.ForEach(ProcessMethod);
         }
 
         public virtual void ProcessMethod(MethodDefinition methodDef) {
-            ProcessCustomMethodAttributes(methodDef, methodDef.CustomAttributes);
+            ProcessCustomAttributes(methodDef.CustomAttributes, methodDef);
         }
 
-        public virtual void ProcessCustomMethodAttributes(MethodDefinition methodDef, IList<CustomAttribute> attributes) {
-            attributes.ForEach(ProcessCustomMethodAttribute);
+        public virtual void ProcessCustomAttributes(IList<CustomAttribute> attributes, IMetadataTokenProvider owner) {
+            attributes.ForEach(attr => ProcessCustomAttribute(attr, owner));
         }
 
-        public virtual void ProcessCustomMethodAttribute(CustomAttribute attribute) { }
+        public virtual void ProcessCustomAttribute(CustomAttribute attribute, IMetadataTokenProvider owner) { }
     }
 }
