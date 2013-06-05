@@ -52,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectUsedTypesProcessor.cs" />
-    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="EnsureParameterlessConstructorsProcessor.cs" />
     <Compile Include="FrameworkProfile.cs" />
     <Compile Include="MakeSkeletonProcessor.cs" />

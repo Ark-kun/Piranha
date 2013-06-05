@@ -10,5 +10,17 @@ namespace Ark.Linq {
                 collection.Remove(item);
             }
         }
+
+        public static void ReversedForEach<TSource>(this IList<TSource> list, Action<TSource> action) {
+            if (list == null) {
+                throw new ArgumentNullException("source");
+            }
+            if (action == null) {
+                throw new ArgumentNullException("action");
+            }
+            for (int i = list.Count - 1; i >= 0; --i) {
+                action(list[i]);
+            }
+        }
     }
 }
