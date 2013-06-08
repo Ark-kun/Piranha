@@ -136,10 +136,10 @@ namespace Ark.Cecil {
             ProcessCustomAttributes(methodDef.CustomAttributes, methodDef);
         }
 
-        public virtual void ProcessCustomAttributes(IList<CustomAttribute> attributes, IMetadataTokenProvider owner) {
+        public virtual void ProcessCustomAttributes(IList<CustomAttribute> attributes, ICustomAttributeProvider owner) {
             attributes.ForEach(attr => ProcessCustomAttribute(attr, owner));
         }
 
-        public virtual void ProcessCustomAttribute(CustomAttribute attribute, IMetadataTokenProvider owner) { }
+        public virtual void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) { }
     }
 }

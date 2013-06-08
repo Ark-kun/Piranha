@@ -166,7 +166,7 @@ namespace Ark.Piranha {
             base.ProcessMethod(methodDef);
         }
 
-        public override void ProcessCustomAttribute(CustomAttribute attribute, IMetadataTokenProvider owner) {
+        public override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
             ProcessFoundType(attribute.AttributeType);
             base.ProcessCustomAttribute(attribute, owner);
         }
