@@ -8,7 +8,11 @@ namespace Ark.Cecil {
         public void ProcessAssemblyFromFile(string inputFile, string outputFile) {
             string inputFileBase = Path.Combine(Path.GetDirectoryName(inputFile), Path.GetFileNameWithoutExtension(inputFile));
             bool hasSymbols = File.Exists(inputFileBase + ".pdb") || File.Exists(inputFileBase + ".mdb");
-            ProcessAssemblyFromFile(inputFile, new ReaderParameters() { ReadSymbols = hasSymbols }, outputFile, new WriterParameters() { WriteSymbols = hasSymbols });
+            var readerParameters = GetDefaultReaderParameters();
+            var writerParameters = GetDefaultWriterParameters();
+            readerParameters.ReadSymbols = hasSymbols;
+            writerParameters.WriteSymbols = hasSymbols;
+            ProcessAssemblyFromFile(inputFile, readerParameters, outputFile, writerParameters);
         }
 
         public void ProcessAssemblyFromFile(string inputFile, ReaderParameters readerParams, string outputFile, WriterParameters writerParams) {
@@ -18,7 +22,7 @@ namespace Ark.Cecil {
         }
 
         public void ProcessAssemblyFromStream(Stream inputStream, Stream outputStream) {
-            ProcessAssemblyFromStream(inputStream, new ReaderParameters(), outputStream, new WriterParameters());
+            ProcessAssemblyFromStream(inputStream, GetDefaultReaderParameters(), outputStream, GetDefaultWriterParameters());
         }
 
         public void ProcessAssemblyFromStream(Stream inputStream, ReaderParameters readerParams, Stream outputStream, WriterParameters writerParams) {
@@ -27,6 +31,14 @@ namespace Ark.Cecil {
             if (outputStream != null) {
                 assemblyDef.Write(outputStream, writerParams);
             }
+        }
+
+        protected virtual ReaderParameters GetDefaultReaderParameters() {
+            return new ReaderParameters();
+        }
+
+        protected virtual WriterParameters GetDefaultWriterParameters() {
+            return new WriterParameters();
         }
 
         public virtual void ProcessAssembly(AssemblyDefinition assemblyDef) {
