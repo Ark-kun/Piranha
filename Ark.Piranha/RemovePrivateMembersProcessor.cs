@@ -3,6 +3,7 @@ using Ark.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using Ark.Cecil;
+using System.Diagnostics;
 
 namespace Ark.Piranha {
     public class RemovePrivateMembersProcessor : CecilProcessor {
@@ -16,7 +17,7 @@ namespace Ark.Piranha {
         public ICollection<MethodReference> MethodsToPreserve { get; set; }
 
         protected override void ProcessType(TypeDefinition typeDef) {
-            typeDef.Interfaces.RemoveWhere(interfaceRef => !interfaceRef.Resolve().IsPublic);
+            typeDef.Interfaces.RemoveWhere(interfaceRef => interfaceRef.Resolve() == null || !interfaceRef.Resolve().IsPublic);
             base.ProcessType(typeDef);
         }
 
@@ -25,7 +26,7 @@ namespace Ark.Piranha {
                    methodDef.IsPublic
                 || methodDef.IsFamily
                 || methodDef.IsFamilyOrAssembly
-                || methodDef.Overrides.Any(over => over.DeclaringType.Resolve().IsPublic)
+                || methodDef.Overrides.Any(over => over.DeclaringType.Resolve() != null && over.DeclaringType.Resolve().IsPublic)
                 || MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)
                 || methodDef.IsConstructor && (methodDef.IsFamilyAndAssembly || methodDef.IsAssembly) && ShouldPreserveInternalConstructor(methodDef)
             ));
@@ -45,6 +46,7 @@ namespace Ark.Piranha {
             base.ProcessProperties(typeDef, propertyDefs);
             foreach (var propertyDef in typeDef.Properties.ToList()) {
                 if (propertyDef.GetMethod == null && propertyDef.SetMethod == null) {
+                    Trace.WriteLine(string.Format("Removing property {0}.", propertyDef), "RemovePrivateMembers");
                     typeDef.Properties.Remove(propertyDef);
                 }
             }
@@ -69,6 +71,7 @@ namespace Ark.Piranha {
                     var resolvedType = declaringType.TryResolve();
                     if (resolvedType != null) {
                         if (!resolvedType.IsPublic) {
+                            Trace.WriteLine(string.Format("Removing information about the {0} override, because the overriden type {1} is not public.", methodDef, resolvedType), "RemovePrivateMembers");
                             overrides.RemoveAt(i);
                         }
                     } else {
