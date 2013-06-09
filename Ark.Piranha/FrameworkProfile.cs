@@ -3,18 +3,18 @@ using System.IO;
 
 namespace Ark.DotNet {
     public class FrameworkProfile {
-        string _name;
+        string _frameworkName;
         string _version;
         string _profile;
 
-        public FrameworkProfile(string name, string version, string profile = null) {
-            _name = name;
+        public FrameworkProfile(string frameworkName, string version, string profile = null) {
+            _frameworkName = frameworkName;
             _version = version;
             _profile = profile;
         }
 
-        public string Name {
-            get { return _name; }
+        public string FrameworkName {
+            get { return _frameworkName; }
         }
 
         public string Version {
@@ -27,7 +27,7 @@ namespace Ark.DotNet {
 
         public string FullName {
             get {
-                var fullName = Name;
+                var fullName = FrameworkName;
                 if (Version != null) {
                     fullName += ",Version=" + Version;
                 }
@@ -40,13 +40,13 @@ namespace Ark.DotNet {
 
         public bool IsPortable {
             get {
-                return Name == _netPortable;
+                return FrameworkName == Frameworks.NetPortable;
             }
         }
 
         public bool IsClientProfile {
             get {
-                return Profile == _profileClient;
+                return Profile == Profiles.Client;
             }
         }
 
@@ -59,8 +59,8 @@ namespace Ark.DotNet {
         public string ReferencesDirectory {
             get {
                 string directory = ReferenceAssembliesDirectory;
-                if (Name != null) {
-                    directory = Path.Combine(directory, Name);
+                if (FrameworkName != null) {
+                    directory = Path.Combine(directory, FrameworkName);
                 }
                 if (Version != null) {
                     directory = Path.Combine(directory, Version);
@@ -98,25 +98,34 @@ namespace Ark.DotNet {
             return new FrameworkProfile(name, version, profile);
         }
 
-        static string _netFramework = ".NETFramework";
-        static string _netPortable = ".NETPortable";
-        static string _netMicroFramework = ".NETMicroFramework";
-        static string _netCore = ".NETCore";
-        static string _monoAndroid = "MonoAndroid";
-        static string _monoTouch = "MonoTouch";
-        static string _silverlight = "Silverlight";
-        static string _windowsPhone = "WindowsPhone";
+        public static class Frameworks {
+            public const string NetFramework = ".NETFramework";
+            public const string NetPortable = ".NETPortable";
+            public const string NetMicroFramework = ".NETMicroFramework";
+            public const string NetCore = ".NETCore";
+            public const string MonoAndroid = "MonoAndroid";
+            public const string MonoTouch = "MonoTouch";
+            public const string Silverlight = "Silverlight";
+            public const string WindowsPhone = "WindowsPhone";
+        }
 
-        static string _version40 = "v4.0";
-        static string _version45 = "v4.5";
+        public static class Versions {
+            public const string v20 = "v2.0";
+            public const string v30 = "v3.0";
+            public const string v35 = "v3.5";
+            public const string v40 = "v4.0";
+            public const string v45 = "v4.5";
+        }
 
-        static string _profileClient = "Client";
+        public static class Profiles {
+            public const string Client = "Client";
+        }
 
-        static FrameworkProfile _netFramework40 = new FrameworkProfile(_netFramework, _version40);
-        static FrameworkProfile _netFramework40Client = new FrameworkProfile(_netFramework, _version40, _profileClient);
-        static FrameworkProfile _netFramework45 = new FrameworkProfile(_netFramework, _version45);
-        static FrameworkProfile _netPortable_NET40_SL4_WP71_Windows8 = new FrameworkProfile(_netPortable, _version40, "Profile88");
-        static FrameworkProfile _netPortable_NET45_Windows8 = new FrameworkProfile(_netPortable, _version45, "Profile7");
+        static FrameworkProfile _netFramework40 = new FrameworkProfile(Frameworks.NetFramework, Versions.v40);
+        static FrameworkProfile _netFramework40Client = new FrameworkProfile(Frameworks.NetFramework, Versions.v40, Profiles.Client);
+        static FrameworkProfile _netFramework45 = new FrameworkProfile(Frameworks.NetFramework, Versions.v45);
+        static FrameworkProfile _netPortable_NET40_SL4_WP71_Windows8 = new FrameworkProfile(Frameworks.NetPortable, Versions.v40, "Profile88");
+        static FrameworkProfile _netPortable_NET45_Windows8 = new FrameworkProfile(Frameworks.NetPortable, Versions.v45, "Profile7");
 
         public static FrameworkProfile NetFramework40 { get { return _netFramework40; } }
 
