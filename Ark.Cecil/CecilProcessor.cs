@@ -1,6 +1,7 @@
 ﻿using Ark.Linq;
 using Mono.Cecil;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Ark.Cecil {
@@ -27,7 +28,7 @@ namespace Ark.Cecil {
 
         public void ProcessAssemblyFromStream(Stream inputStream, ReaderParameters readerParams, Stream outputStream, WriterParameters writerParams) {
             var assemblyDef = AssemblyDefinition.ReadAssembly(inputStream, readerParams);
-            Process(assemblyDef);            
+            Process(assemblyDef);
             if (outputStream != null) {
                 assemblyDef.Write(outputStream, writerParams);
             }
@@ -41,10 +42,24 @@ namespace Ark.Cecil {
             return new WriterParameters();
         }
 
-        protected virtual void BeforeProcessing() {        
+        protected virtual void BeforeProcessing() {
+            var longName = this.GetType().Name;
+            var shortName = longName;
+            if (shortName.EndsWith("Processor")) {
+                shortName.Remove(shortName.Length - "Processor".Length);
+            }
+            Trace.WriteLine(string.Format("Started {0}.", longName), shortName);
+            Trace.Indent();
         }
 
         protected virtual void AfterProcessing() {
+            var longName = this.GetType().Name;
+            var shortName = longName;
+            if (shortName.EndsWith("Processor")) {
+                shortName.Remove(shortName.Length - "Processor".Length);
+            }
+            Trace.Unindent();
+            Trace.WriteLine(string.Format("Finished {0}.", longName), shortName);
         }
 
         public void Process(AssemblyDefinition assemblyDef) {
