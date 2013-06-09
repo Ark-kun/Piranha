@@ -133,6 +133,16 @@ namespace Ark.Piranha {
             _usedTypeReferences.Add(typeRef);
         }
 
+        public override void ProcessExportedType(ExportedType exportedType) {
+            var exportedTypeDef = exportedType.TryResolve();
+            if (exportedTypeDef != null) {
+                ProcessFoundType(exportedTypeDef);
+            } else {
+                Trace.WriteLine(string.Format("Strange: Couldn't resolve the exported type {0}.", exportedType), "CollectUsedTypes");
+            }
+            base.ProcessExportedType(exportedType);
+        }
+
         public override void ProcessType(TypeDefinition typeDef) {
             ProcessFoundType(typeDef);
             if (typeDef.BaseType != null) {
@@ -147,6 +157,16 @@ namespace Ark.Piranha {
         public override void ProcessField(FieldDefinition fieldDef) {
             ProcessFoundType(fieldDef.FieldType);
             base.ProcessField(fieldDef);
+        }
+
+        public override void ProcessProperty(PropertyDefinition propertyDef) {
+            ProcessFoundType(propertyDef.PropertyType);
+            base.ProcessProperty(propertyDef);
+        }
+
+        public override void ProcessEvent(EventDefinition eventDef) {
+            ProcessFoundType(eventDef.EventType);
+            base.ProcessEvent(eventDef);
         }
 
         public override void ProcessMethod(MethodDefinition methodDef) {
