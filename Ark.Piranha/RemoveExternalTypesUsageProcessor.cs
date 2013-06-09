@@ -10,11 +10,15 @@ namespace Ark.Piranha {
     public class RemoveExternalTypesUsageProcessor : CecilProcessor {
         DefaultAssemblyResolver _assemblyResolver = new DefaultAssemblyResolver();
         FrameworkProfile _frameworkProfile;
+        bool _removeNonRetargetable;
 
-        public RemoveExternalTypesUsageProcessor() { }
+        public RemoveExternalTypesUsageProcessor(bool removeNonRetargetable = false) {
+            _removeNonRetargetable = removeNonRetargetable;
+        }
 
-        public RemoveExternalTypesUsageProcessor(FrameworkProfile frameworkProfile) {
+        public RemoveExternalTypesUsageProcessor(FrameworkProfile frameworkProfile, bool removeNonRetargetable = false) {
             _frameworkProfile = frameworkProfile;
+            _removeNonRetargetable = removeNonRetargetable;
         }
 
         protected override ReaderParameters GetDefaultReaderParameters() {
@@ -31,7 +35,10 @@ namespace Ark.Piranha {
             var typesDependenciesCollector = new CollectTypesDependenciesProcessor(_frameworkProfile);
             typesDependenciesCollector.ProcessAssembly(assemblyDef);
 
-            var goodAssemblyNames = assemblyDef.Modules.SelectMany(asmDef => asmDef.AssemblyReferences).Where(asmRef => asmRef.IsRetargetable);
+            var goodAssemblyNames = assemblyDef.Modules.SelectMany(asmDef => asmDef.AssemblyReferences);
+            if(_removeNonRetargetable) {
+                goodAssemblyNames = goodAssemblyNames.Where(asmRef => asmRef.IsRetargetable);
+            }
             if (_frameworkProfile != null) {
                 goodAssemblyNames = goodAssemblyNames.Concat(_frameworkProfile.GetFrameworkAssemblies());
             }
