@@ -4,45 +4,38 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace Ark.Piranha {
-    public class CollectUsedTypesProcessor : CecilProcessor {
-        HashSet<TypeReference> _usedTypeReferences;
-        HashSet<TypeDefinition> _resolvedTypes;
-        HashSet<TypeReference> _unresolvedTypes;
-        HashSet<TypeReference> _allTypes;
+    /// <summary>
+    /// For each type this processor collects a set of dependencies representing members that depend on that type.
+    /// <remarks>
+    /// The modopt and modreq types are recorded as the dependency of the member that uses the modifiers. Thus, the dependent member is removed when the dependency is broken (instead of removing the modifier from the modified type).
+    /// </remarks>
+    /// </summary>
+    public class CollectTypesDependenciesProcessor : CecilProcessor {
+        Dictionary<TypeReference, HashSet<TypeDependency>> _usedTypeReferences;
+        Dictionary<TypeDefinition, HashSet<TypeDependency>> _resolvedTypesDependencies;
+        Dictionary<TypeReference, HashSet<TypeDependency>> _unresolvedTypesDependencies;
+        Dictionary<TypeReference, HashSet<TypeDependency>> _allTypesDependencies;
         FrameworkProfile _frameworkProfile;
 
-        public CollectUsedTypesProcessor() { }
+        public CollectTypesDependenciesProcessor() { }
 
-        public CollectUsedTypesProcessor(FrameworkProfile frameworkProfile) {
+        public CollectTypesDependenciesProcessor(FrameworkProfile frameworkProfile) {
             _frameworkProfile = frameworkProfile;
         }
 
-        public ISet<TypeDefinition> ResolvedTypes {
-            get { return _resolvedTypes; }
+        public Dictionary<TypeDefinition, HashSet<TypeDependency>> ResolvedTypesDependencies {
+            get { return _resolvedTypesDependencies; }
         }
 
-        public ISet<TypeReference> UnresolvedTypes {
-            get { return _unresolvedTypes; }
+        public Dictionary<TypeReference, HashSet<TypeDependency>> UnresolvedTypesDependencies {
+            get { return _unresolvedTypesDependencies; }
         }
 
-        public ISet<TypeReference> AllTypes {
-            get { return _allTypes; }
-        }
-
-        public void DumpToFile(string fileName) {
-            using (var usedTypesWriter = File.CreateText(fileName)) {
-
-                foreach (string fullTypeName in _resolvedTypes.Select(typeDef => "[" + (typeDef.Module == null ? "?" : typeDef.Module.Assembly.FullName) + "]" + typeDef.FullName).OrderBy(tn => tn).Distinct()) {
-                    usedTypesWriter.WriteLine(fullTypeName);
-                }
-                foreach (string fullTypeName in _unresolvedTypes.Select(typeRef => "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}" + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
-                    usedTypesWriter.WriteLine(fullTypeName);
-                }
-            }
+        public Dictionary<TypeReference, HashSet<TypeDependency>> AllTypesDependencies {
+            get { return _allTypesDependencies; }
         }
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
@@ -58,16 +51,18 @@ namespace Ark.Piranha {
                 }
             }
 
-            _usedTypeReferences = new HashSet<TypeReference>(CecilEqualityComparer.Default);
+            _usedTypeReferences = new Dictionary<TypeReference, HashSet<TypeDependency>>();
             base.ProcessAssembly(assemblyDef);
-            var unprocessedTypes = new Queue<TypeReference>(_usedTypeReferences);
+            var unprocessedTypes = new Queue<TypeReferenceAndDependencies>(_usedTypeReferences.Select(kv => (TypeReferenceAndDependencies)kv));
             _usedTypeReferences = null;
 
-            var processedTypes = new HashSet<TypeDefinition>();
-            var unresolvedTypes = new HashSet<TypeReference>(CecilEqualityComparer.Default);
+            var processedTypes = new Dictionary<TypeDefinition, HashSet<TypeDependency>>();
+            var unresolvedTypes = new Dictionary<TypeReference, HashSet<TypeDependency>>();
 
             while (unprocessedTypes.Any()) {
-                var typeRef = unprocessedTypes.Dequeue();
+                var typeDependencies = unprocessedTypes.Dequeue();
+                var typeRef = typeDependencies.Type;
+                var dependentMembers = typeDependencies.DependingMembers;
 
                 if (typeRef == null) {
                     continue;
@@ -81,36 +76,36 @@ namespace Ark.Piranha {
                 if (typeSpec != null) {
                     var elementType = typeSpec.ElementType;
                     Debug.Assert(elementType != null);
-                    unprocessedTypes.Enqueue(elementType);
+                    unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(elementType, dependentMembers));
 
                     var genericInstanceTypeRef = typeRef as GenericInstanceType;
                     if (genericInstanceTypeRef != null) {
                         foreach (var genericArgument in genericInstanceTypeRef.GenericArguments) {
-                            unprocessedTypes.Enqueue(genericArgument);
+                            unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(genericArgument, dependentMembers));
                         }
                     }
 
                     var requiredModifierTypeRef = typeRef as RequiredModifierType;
                     if (requiredModifierTypeRef != null) {
-                        unprocessedTypes.Enqueue(requiredModifierTypeRef.ModifierType);
+                        unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(requiredModifierTypeRef.ModifierType, dependentMembers));
                     }
 
                     var optionalModifierTypeRef = typeRef as OptionalModifierType;
                     if (optionalModifierTypeRef != null) {
-                        unprocessedTypes.Enqueue(optionalModifierTypeRef.ModifierType);
+                        unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(optionalModifierTypeRef.ModifierType, dependentMembers));
                     }
 
                     var functionPointerTypeRef = typeRef as FunctionPointerType;
                     if (functionPointerTypeRef != null) {
-                        unprocessedTypes.Enqueue(functionPointerTypeRef.ReturnType);
+                        unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(functionPointerTypeRef.ReturnType, dependentMembers));
                         foreach (var parameter in functionPointerTypeRef.Parameters) {
                             unprocessedTypes.Equals(parameter.ParameterType);
                             foreach (var customAttr in parameter.CustomAttributes) {
-                                unprocessedTypes.Enqueue(customAttr.AttributeType);
+                                unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(customAttr.AttributeType, dependentMembers));
                             }
                         }
                         foreach (var customAttr in functionPointerTypeRef.MethodReturnType.CustomAttributes) {
-                            unprocessedTypes.Enqueue(customAttr.AttributeType);
+                            unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(customAttr.AttributeType, dependentMembers));
                         }
                     }
                     continue;
@@ -120,80 +115,111 @@ namespace Ark.Piranha {
                 if (typeDef == null) {
                     typeDef = typeRef.TryResolve();
                     if (typeDef != null) {
-                        unprocessedTypes.Enqueue(typeDef);
+                        unprocessedTypes.Enqueue(new TypeReferenceAndDependencies(typeDef, dependentMembers));
                     } else {
-                        unresolvedTypes.Add(typeRef);
-                        Debug.WriteLine(string.Format("Cannot resolve type {0}", typeRef.FullName));
+                        AddDependencies(unresolvedTypes, typeDependencies);
+                        Trace.WriteLine(string.Format("Warning: Couldn't resolve type {0}", typeRef.FullName), "CollectTypesDependencies");
                     }
                     continue;
                 }
 
-                processedTypes.Add(typeDef);
+                AddDependencies(processedTypes, new TypeDefinitionAndDependencies(typeDef, dependentMembers));
             }
-            _resolvedTypes = processedTypes;
-            _unresolvedTypes = unresolvedTypes;
+            _resolvedTypesDependencies = processedTypes;
+            _unresolvedTypesDependencies = unresolvedTypes;
 
-            _allTypes = new HashSet<TypeReference>(_unresolvedTypes.Concat(_resolvedTypes), CecilEqualityComparer.Default);
+            _allTypesDependencies = new Dictionary<TypeReference, HashSet<TypeDependency>>(_unresolvedTypesDependencies, CecilEqualityComparer.Default);
+            foreach (var resolvedTypeDependencies in _resolvedTypesDependencies) {
+                _allTypesDependencies.Add(resolvedTypeDependencies.Key, resolvedTypeDependencies.Value);
+            }
         }
 
-        void ProcessFoundType(TypeReference typeRef) {
-            _usedTypeReferences.Add(typeRef);
+        void AddDependencies(Dictionary<TypeReference, HashSet<TypeDependency>> storage, TypeReferenceAndDependencies addition) {
+            var typeRef = addition.Type;
+            HashSet<TypeDependency> members = null;
+            if (!storage.TryGetValue(typeRef, out members)) {
+                members = new HashSet<TypeDependency>();
+                storage.Add(typeRef, members);
+            }
+            var addedMembers = addition.DependingMembers;
+            members.UnionWith(addedMembers);
+        }
+
+        void AddDependencies(Dictionary<TypeDefinition, HashSet<TypeDependency>> storage, TypeDefinitionAndDependencies addition) {
+            var typeDef = addition.Type;
+            HashSet<TypeDependency> members = null;
+            if (!storage.TryGetValue(typeDef, out members)) {
+                members = new HashSet<TypeDependency>();
+                storage.Add(typeDef, members);
+            }
+            var addedMembers = addition.DependingMembers;
+            members.UnionWith(addedMembers);
+        }
+
+        void AddDependency(TypeReference dependentTypeRef, TypeDependency dependingMember) {
+            HashSet<TypeDependency> members = null;
+            if (!_usedTypeReferences.TryGetValue(dependentTypeRef, out members)) {
+                members = new HashSet<TypeDependency>();
+                _usedTypeReferences.Add(dependentTypeRef, members);
+            }
+            members.Add(dependingMember);
         }
 
         public override void ProcessExportedType(ExportedType exportedType) {
             var exportedTypeDef = exportedType.TryResolve();
             if (exportedTypeDef != null) {
-                ProcessFoundType(exportedTypeDef);
+                AddDependency(exportedTypeDef, new ExportedTypeDependency(exportedType, exportedTypeDef.Module));
             } else {
-                Trace.WriteLine(string.Format("Strange: Couldn't resolve the exported type {0}.", exportedType), "CollectUsedTypes");
+                Trace.WriteLine(string.Format("Strange: Couldn't resolve the exported type {0}.", exportedType), "CollectTypesDependencies");
             }
+
             base.ProcessExportedType(exportedType);
         }
 
         public override void ProcessType(TypeDefinition typeDef) {
-            ProcessFoundType(typeDef);
+            //ProcessFoundType(typeDef, typeDef); //? type self-dependency?
             if (typeDef.BaseType != null) {
-                ProcessFoundType(typeDef.BaseType);
+                AddDependency(typeDef.BaseType, new BaseClassDependency(typeDef));
             }
             foreach (var interfaceRef in typeDef.Interfaces) {
-                ProcessFoundType(interfaceRef);
+                AddDependency(interfaceRef, new InterfaceDependency(typeDef, interfaceRef));
             }
             base.ProcessType(typeDef);
         }
 
         public override void ProcessField(FieldDefinition fieldDef) {
-            ProcessFoundType(fieldDef.FieldType);
+            AddDependency(fieldDef.FieldType, new FieldDependency(fieldDef));
             base.ProcessField(fieldDef);
         }
 
         public override void ProcessProperty(PropertyDefinition propertyDef) {
-            ProcessFoundType(propertyDef.PropertyType);
+            AddDependency(propertyDef.PropertyType, new PropertyDependency(propertyDef));
             base.ProcessProperty(propertyDef);
         }
 
         public override void ProcessEvent(EventDefinition eventDef) {
-            ProcessFoundType(eventDef.EventType);
+            AddDependency(eventDef.EventType, new EventDependency(eventDef));
             base.ProcessEvent(eventDef);
         }
 
         public override void ProcessMethod(MethodDefinition methodDef) {
-            ProcessFoundType(methodDef.ReturnType);
+            AddDependency(methodDef.ReturnType, new MethodDependency(methodDef));
             foreach (var parameter in methodDef.Parameters) {
-                ProcessFoundType(parameter.ParameterType);
+                AddDependency(parameter.ParameterType, new MethodDependency(methodDef));
             }
             if (methodDef.HasBody) {
                 var body = methodDef.Body;
                 foreach (var variable in body.Variables) {
-                    ProcessFoundType(variable.VariableType);
+                    AddDependency(variable.VariableType, new MethodDependency(methodDef));
                 }
                 foreach (var instruction in body.Instructions) {
                     if (instruction.OpCode == OpCodes.Newobj) {
                         var newObjTypeRef = ((MemberReference)instruction.Operand).DeclaringType;
-                        ProcessFoundType(newObjTypeRef);
+                        AddDependency(newObjTypeRef, new MethodDependency(methodDef));
                     }
                     if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Calli || instruction.OpCode == OpCodes.Callvirt) {
                         var callMethodRef = instruction.Operand as MethodReference;
-                        ProcessFoundType(callMethodRef.DeclaringType);
+                        AddDependency(callMethodRef.DeclaringType, new MethodDependency(methodDef));
                         //TODO: Process method signature.
                     }
                 }
@@ -201,8 +227,9 @@ namespace Ark.Piranha {
             base.ProcessMethod(methodDef);
         }
 
+
         public override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
-            ProcessFoundType(attribute.AttributeType);
+            AddDependency(attribute.AttributeType, new AttributeDependency(owner, attribute));
             base.ProcessCustomAttribute(attribute, owner);
         }
     }

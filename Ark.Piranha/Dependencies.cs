@@ -1,6 +1,7 @@
 ﻿using Ark.Cecil;
 using Mono.Cecil;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Ark.Piranha {
@@ -232,6 +233,44 @@ namespace Ark.Piranha {
         public override void Break() {
             Trace.WriteLine(String.Format("Removing export of type {0} because that type is being removed.", ExportedType), "TypeDependency");
             Module.ExportedTypes.Remove(ExportedType);
+
+            TypeReferenceAndDependencies xxx = default(KeyValuePair<TypeReference, HashSet<TypeDependency>>);
+        }
+    }
+
+    public class TypeDefinitionAndDependencies {
+        public TypeDefinitionAndDependencies(TypeDefinition type, HashSet<TypeDependency> dependingMembers) {
+            Type = type;
+            DependingMembers = dependingMembers;
+        }
+
+        public HashSet<TypeDependency> DependingMembers { get; set; }
+
+        public TypeDefinition Type { get; set; }
+
+        public static implicit operator KeyValuePair<TypeDefinition, HashSet<TypeDependency>>(TypeDefinitionAndDependencies self) {
+            return new KeyValuePair<TypeDefinition, HashSet<TypeDependency>>(self.Type, self.DependingMembers);
+        }
+        public static implicit operator TypeDefinitionAndDependencies(KeyValuePair<TypeDefinition, HashSet<TypeDependency>> pair) {
+            return new TypeDefinitionAndDependencies(pair.Key, pair.Value);
+        }
+    }
+
+    public class TypeReferenceAndDependencies {
+        public TypeReferenceAndDependencies(TypeReference type, HashSet<TypeDependency> dependingMembers) {
+            Type = type;
+            DependingMembers = dependingMembers;
+        }
+
+        public HashSet<TypeDependency> DependingMembers { get; set; }
+
+        public TypeReference Type { get; set; }
+
+        public static implicit operator KeyValuePair<TypeReference, HashSet<TypeDependency>>(TypeReferenceAndDependencies self) {
+            return new KeyValuePair<TypeReference, HashSet<TypeDependency>>(self.Type, self.DependingMembers);
+        }
+        public static implicit operator TypeReferenceAndDependencies(KeyValuePair<TypeReference, HashSet<TypeDependency>> pair) {
+            return new TypeReferenceAndDependencies(pair.Key, pair.Value);
         }
     }
 }
