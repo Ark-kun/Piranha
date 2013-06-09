@@ -14,7 +14,7 @@ namespace Ark.DotNet {
             
             foreach (var assemblyName in assemblies) {
                 if (assemblyName.Culture.Equals("neutral", StringComparison.InvariantCultureIgnoreCase)) {
-                    assemblyName.Culture = "WTF?";
+                    assemblyName.Culture = null;
                 }
                 assemblyName.IsRetargetable = frameworkProfile.IsPortable;
             }
