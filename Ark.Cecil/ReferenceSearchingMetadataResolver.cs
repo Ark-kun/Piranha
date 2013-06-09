@@ -9,18 +9,14 @@ namespace Ark.Cecil {
 
         public override TypeDefinition Resolve(TypeReference type) {
             TypeDefinition result = null;
-            try {
-                result = TryResolve(type);
-            } catch (AssemblyResolutionException) { }
+            result = TryResolve(type);
             if (result != null) {
                 return result;
             }
             var originalScope = type.Scope;
             foreach (var reference in type.Module.AssemblyReferences) {
                 type.Scope = reference;
-                try {
-                    result = TryResolve(type);
-                } catch (AssemblyResolutionException) { }
+                result = TryResolve(type);
                 if (result != null) {
                     Trace.WriteLine(string.Format("Successfully forwarded the type {0} from {1} to {2}.", type, originalScope, type.Scope), "ReferenceSearchingMetadataResolver");
                     return result;
