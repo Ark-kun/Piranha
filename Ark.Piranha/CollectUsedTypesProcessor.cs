@@ -34,7 +34,7 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            var frameworkProfile = assemblyDef.GetAssemblyProfileFromAttribute();
+            var frameworkProfile = assemblyDef.GuessAssemblyProfile();
             if (frameworkProfile != null) {
                 foreach (var moduleDef in assemblyDef.Modules) {
                     var resolver = moduleDef.AssemblyResolver as DefaultAssemblyResolver;
