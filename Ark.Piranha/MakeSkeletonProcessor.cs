@@ -5,7 +5,7 @@ namespace Ark.Piranha {
     public class MakeSkeletonProcessor : CecilProcessor {
         bool _enableBreakingVerification;
 
-        public MakeSkeletonProcessor(bool enableBreakingVerification) {
+        public MakeSkeletonProcessor(bool enableBreakingVerification = false) {
             _enableBreakingVerification = enableBreakingVerification;
         }
 
