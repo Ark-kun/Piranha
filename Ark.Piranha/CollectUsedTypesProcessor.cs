@@ -10,8 +10,9 @@ using System.Linq;
 namespace Ark.Piranha {
     public class CollectUsedTypesProcessor : CecilProcessor {
         HashSet<TypeReference> _usedTypeReferences;
-        HashSet<TypeDefinition> _usedTypes;
+        HashSet<TypeDefinition> _resolvedTypes;
         HashSet<TypeReference> _unresolvedTypes;
+        HashSet<TypeReference> _allTypes;
         FrameworkProfile _frameworkProfile;
 
         public CollectUsedTypesProcessor() { }
@@ -20,18 +21,22 @@ namespace Ark.Piranha {
             _frameworkProfile = frameworkProfile;
         }
 
-        public ISet<TypeDefinition> UsedTypes {
-            get { return _usedTypes; }
+        public ISet<TypeDefinition> ResolvedTypes {
+            get { return _resolvedTypes; }
         }
 
         public ISet<TypeReference> UnresolvedTypes {
             get { return _unresolvedTypes; }
         }
 
+        public ISet<TypeReference> AllTypes {
+            get { return _allTypes; }
+        }
+
         public void DumpToFile(string fileName) {
             using (var usedTypesWriter = File.CreateText(fileName)) {
 
-                foreach (string fullTypeName in _usedTypes.Select(typeDef => "[" + (typeDef.Module == null ? "?" : typeDef.Module.Assembly.FullName) + "]" + typeDef.FullName).OrderBy(tn => tn).Distinct()) {
+                foreach (string fullTypeName in _resolvedTypes.Select(typeDef => "[" + (typeDef.Module == null ? "?" : typeDef.Module.Assembly.FullName) + "]" + typeDef.FullName).OrderBy(tn => tn).Distinct()) {
                     usedTypesWriter.WriteLine(fullTypeName);
                 }
                 foreach (string fullTypeName in _unresolvedTypes.Select(typeRef => "{" + (typeRef.Scope == null ? "?" : typeRef.Scope.ToString()) + "}" + typeRef.FullName).OrderBy(tn => tn).Distinct()) {
@@ -125,8 +130,10 @@ namespace Ark.Piranha {
 
                 processedTypes.Add(typeDef);
             }
-            _usedTypes = processedTypes;
+            _resolvedTypes = processedTypes;
             _unresolvedTypes = unresolvedTypes;
+
+            _allTypes = new HashSet<TypeReference>(_unresolvedTypes.Concat(_resolvedTypes), CecilEqualityComparer.Default);
         }
 
         void ProcessFoundType(TypeReference typeRef) {
