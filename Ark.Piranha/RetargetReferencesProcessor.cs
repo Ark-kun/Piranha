@@ -22,7 +22,7 @@ namespace Ark.Piranha {
             _removeOthers = removeOthers;
         }
 
-        public override void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
+        protected override void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
             for (int i = assemblyNameRefs.Count - 1; i >= 0; --i) {
                 AssemblyNameReference replacement = null;
                 if (_assemblyReplacements.TryGetValue(assemblyNameRefs[i].Name, out replacement)) {

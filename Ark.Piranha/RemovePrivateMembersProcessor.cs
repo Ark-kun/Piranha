@@ -15,12 +15,12 @@ namespace Ark.Piranha {
         public ICollection<FieldReference> FieldsToPreserve { get; set; }
         public ICollection<MethodReference> MethodsToPreserve { get; set; }
 
-        public override void ProcessType(TypeDefinition typeDef) {
+        protected override void ProcessType(TypeDefinition typeDef) {
             typeDef.Interfaces.RemoveWhere(interfaceRef => !interfaceRef.Resolve().IsPublic);
             base.ProcessType(typeDef);
         }
 
-        public override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
+        protected override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
             methodDefs.RemoveWhere(methodDef => !(
                    methodDef.IsPublic
                 || methodDef.IsFamily
@@ -36,12 +36,12 @@ namespace Ark.Piranha {
             return !methodDef.HasParameters || methodDef.DeclaringType.GetParameterlessConstructor() == null;
         }
 
-        public override void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
+        protected override void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
             fieldDefs.RemoveWhere(fieldDef => !fieldDef.IsPublic && !fieldDef.IsFamily && !(typeDef.IsValueType && _preserveFieldsOfStructs) && !(FieldsToPreserve != null && FieldsToPreserve.Contains(fieldDef)));
             base.ProcessFields(typeDef, fieldDefs);
         }
 
-        public override void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
+        protected override void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
             base.ProcessProperties(typeDef, propertyDefs);
             foreach (var propertyDef in typeDef.Properties.ToList()) {
                 if (propertyDef.GetMethod == null && propertyDef.SetMethod == null) {
@@ -50,7 +50,7 @@ namespace Ark.Piranha {
             }
         }
 
-        public override void ProcessProperty(PropertyDefinition propertyDef) {
+        protected override void ProcessProperty(PropertyDefinition propertyDef) {
             if (propertyDef.GetMethod != null && propertyDef.GetMethod.Module == null) {
                 propertyDef.GetMethod = null;
             }
@@ -60,7 +60,7 @@ namespace Ark.Piranha {
             base.ProcessProperty(propertyDef);
         }
 
-        public override void ProcessMethod(MethodDefinition methodDef) {
+        protected override void ProcessMethod(MethodDefinition methodDef) {
             //methodDef.Overrides.RemoveWhere(overrideRef => overrideRef.DeclaringType.i)
             var overrides = methodDef.Overrides;
             for (int i = overrides.Count - 1; i >= 0; --i) {

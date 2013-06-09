@@ -45,7 +45,7 @@ namespace Ark.Piranha {
             }
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             if (_frameworkProfile == null) {
                 _frameworkProfile = assemblyDef.GuessAssemblyProfile();
             }
@@ -140,7 +140,7 @@ namespace Ark.Piranha {
             _usedTypeReferences.Add(typeRef);
         }
 
-        public override void ProcessExportedType(ExportedType exportedType) {
+        protected override void ProcessExportedType(ExportedType exportedType) {
             var exportedTypeDef = exportedType.TryResolve();
             if (exportedTypeDef != null) {
                 ProcessFoundType(exportedTypeDef);
@@ -150,7 +150,7 @@ namespace Ark.Piranha {
             base.ProcessExportedType(exportedType);
         }
 
-        public override void ProcessType(TypeDefinition typeDef) {
+        protected override void ProcessType(TypeDefinition typeDef) {
             ProcessFoundType(typeDef);
             if (typeDef.BaseType != null) {
                 ProcessFoundType(typeDef.BaseType);
@@ -161,22 +161,22 @@ namespace Ark.Piranha {
             base.ProcessType(typeDef);
         }
 
-        public override void ProcessField(FieldDefinition fieldDef) {
+        protected override void ProcessField(FieldDefinition fieldDef) {
             ProcessFoundType(fieldDef.FieldType);
             base.ProcessField(fieldDef);
         }
 
-        public override void ProcessProperty(PropertyDefinition propertyDef) {
+        protected override void ProcessProperty(PropertyDefinition propertyDef) {
             ProcessFoundType(propertyDef.PropertyType);
             base.ProcessProperty(propertyDef);
         }
 
-        public override void ProcessEvent(EventDefinition eventDef) {
+        protected override void ProcessEvent(EventDefinition eventDef) {
             ProcessFoundType(eventDef.EventType);
             base.ProcessEvent(eventDef);
         }
 
-        public override void ProcessMethod(MethodDefinition methodDef) {
+        protected override void ProcessMethod(MethodDefinition methodDef) {
             ProcessFoundType(methodDef.ReturnType);
             foreach (var parameter in methodDef.Parameters) {
                 ProcessFoundType(parameter.ParameterType);
@@ -201,7 +201,7 @@ namespace Ark.Piranha {
             base.ProcessMethod(methodDef);
         }
 
-        public override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
+        protected override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
             ProcessFoundType(attribute.AttributeType);
             base.ProcessCustomAttribute(attribute, owner);
         }

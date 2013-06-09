@@ -27,7 +27,7 @@ namespace Ark.Cecil {
 
         public void ProcessAssemblyFromStream(Stream inputStream, ReaderParameters readerParams, Stream outputStream, WriterParameters writerParams) {
             var assemblyDef = AssemblyDefinition.ReadAssembly(inputStream, readerParams);
-            ProcessAssembly(assemblyDef);
+            Process(assemblyDef);            
             if (outputStream != null) {
                 assemblyDef.Write(outputStream, writerParams);
             }
@@ -41,16 +41,28 @@ namespace Ark.Cecil {
             return new WriterParameters();
         }
 
-        public virtual void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected virtual void BeforeProcessing() {        
+        }
+
+        protected virtual void AfterProcessing() {
+        }
+
+        public void Process(AssemblyDefinition assemblyDef) {
+            BeforeProcessing();
+            ProcessAssembly(assemblyDef);
+            AfterProcessing();
+        }
+
+        protected virtual void ProcessAssembly(AssemblyDefinition assemblyDef) {
             ProcessModules(assemblyDef, assemblyDef.Modules);
             ProcessCustomAttributes(assemblyDef.CustomAttributes, assemblyDef);
         }
 
-        public virtual void ProcessModules(AssemblyDefinition assemblyDef, IList<ModuleDefinition> moduleDefs) {
+        protected virtual void ProcessModules(AssemblyDefinition assemblyDef, IList<ModuleDefinition> moduleDefs) {
             moduleDefs.ForEach(ProcessModule);
         }
 
-        public virtual void ProcessModule(ModuleDefinition moduleDef) {
+        protected virtual void ProcessModule(ModuleDefinition moduleDef) {
             ProcessAssemblyReferences(moduleDef, moduleDef.AssemblyReferences);
             ProcessModuleReferences(moduleDef, moduleDef.ModuleReferences);
             ProcessCustomAttributes(moduleDef.CustomAttributes, moduleDef);
@@ -59,44 +71,44 @@ namespace Ark.Cecil {
             ProcessResources(moduleDef, moduleDef.Resources);
         }
 
-        public virtual void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
+        protected virtual void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
             assemblyNameRefs.ForEach(ProcessAssemblyReference);
         }
 
-        public virtual void ProcessAssemblyReference(AssemblyNameReference assemblyNameRef) { }
+        protected virtual void ProcessAssemblyReference(AssemblyNameReference assemblyNameRef) { }
 
-        public virtual void ProcessModuleReferences(ModuleDefinition moduleDef, IList<ModuleReference> moduleRefs) {
+        protected virtual void ProcessModuleReferences(ModuleDefinition moduleDef, IList<ModuleReference> moduleRefs) {
             moduleRefs.ForEach(ProcessModuleReference);
         }
 
-        public virtual void ProcessModuleReference(ModuleReference moduleRef) { }
+        protected virtual void ProcessModuleReference(ModuleReference moduleRef) { }
 
-        public virtual void ProcessResources(ModuleDefinition moduleDef, IList<Resource> resources) {
+        protected virtual void ProcessResources(ModuleDefinition moduleDef, IList<Resource> resources) {
             resources.ForEach(ProcessResource);
         }
 
-        public virtual void ProcessResource(Resource resource) { }
+        protected virtual void ProcessResource(Resource resource) { }
 
-        public virtual void ProcessExportedTypes(ModuleDefinition moduleDef, IList<ExportedType> exportedTypes) {
+        protected virtual void ProcessExportedTypes(ModuleDefinition moduleDef, IList<ExportedType> exportedTypes) {
             exportedTypes.ForEach(ProcessExportedType);
         }
 
-        public virtual void ProcessExportedType(ExportedType exportedType) { }
+        protected virtual void ProcessExportedType(ExportedType exportedType) { }
 
-        public virtual void ProcessModuleTypes(ModuleDefinition moduleDef, IList<TypeDefinition> typeDefs) {
+        protected virtual void ProcessModuleTypes(ModuleDefinition moduleDef, IList<TypeDefinition> typeDefs) {
             typeDefs.ForEach(ProcessTypeAndNestedTypes);
         }
 
-        public virtual void ProcessTypeAndNestedTypes(TypeDefinition typeDef) {
+        protected virtual void ProcessTypeAndNestedTypes(TypeDefinition typeDef) {
             ProcessNestedTypes(typeDef, typeDef.NestedTypes);
             ProcessType(typeDef);
         }
 
-        public virtual void ProcessNestedTypes(TypeDefinition typeDef, IList<TypeDefinition> typeDefs) {
+        protected virtual void ProcessNestedTypes(TypeDefinition typeDef, IList<TypeDefinition> typeDefs) {
             typeDefs.ForEach(ProcessTypeAndNestedTypes);
         }
 
-        public virtual void ProcessType(TypeDefinition typeDef) {
+        protected virtual void ProcessType(TypeDefinition typeDef) {
             ProcessCustomAttributes(typeDef.CustomAttributes, typeDef);
             ProcessFields(typeDef, typeDef.Fields);
             ProcessMethods(typeDef, typeDef.Methods);
@@ -104,42 +116,42 @@ namespace Ark.Cecil {
             ProcessEvents(typeDef, typeDef.Events);
         }
 
-        public virtual void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
+        protected virtual void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
             fieldDefs.ForEach(ProcessField);
         }
 
-        public virtual void ProcessField(FieldDefinition fieldDef) {
+        protected virtual void ProcessField(FieldDefinition fieldDef) {
             ProcessCustomAttributes(fieldDef.CustomAttributes, fieldDef);
         }
 
-        public virtual void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
+        protected virtual void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
             propertyDefs.ForEach(ProcessProperty);
         }
 
-        public virtual void ProcessProperty(PropertyDefinition propertyDef) {
+        protected virtual void ProcessProperty(PropertyDefinition propertyDef) {
             ProcessCustomAttributes(propertyDef.CustomAttributes, propertyDef);
         }
 
-        public virtual void ProcessEvents(TypeDefinition typeDef, IList<EventDefinition> eventDefs) {
+        protected virtual void ProcessEvents(TypeDefinition typeDef, IList<EventDefinition> eventDefs) {
             eventDefs.ForEach(ProcessEvent);
         }
 
-        public virtual void ProcessEvent(EventDefinition eventDef) {
+        protected virtual void ProcessEvent(EventDefinition eventDef) {
             ProcessCustomAttributes(eventDef.CustomAttributes, eventDef);
         }
 
-        public virtual void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
+        protected virtual void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
             methodDefs.ForEach(ProcessMethod);
         }
 
-        public virtual void ProcessMethod(MethodDefinition methodDef) {
+        protected virtual void ProcessMethod(MethodDefinition methodDef) {
             ProcessCustomAttributes(methodDef.CustomAttributes, methodDef);
         }
 
-        public virtual void ProcessCustomAttributes(IList<CustomAttribute> attributes, ICustomAttributeProvider owner) {
+        protected virtual void ProcessCustomAttributes(IList<CustomAttribute> attributes, ICustomAttributeProvider owner) {
             attributes.ForEach(attr => ProcessCustomAttribute(attr, owner));
         }
 
-        public virtual void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) { }
+        protected virtual void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) { }
     }
 }

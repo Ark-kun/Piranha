@@ -17,7 +17,7 @@ namespace Ark.Piranha {
             : this(frameworkProfile.FullName) {
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             MethodReference attributeConstructor = assemblyDef.MainModule.Import(typeof(TargetFrameworkAttribute).GetConstructor(new Type[] { typeof(string) }));
             var targetFrameworkAttribute = new CustomAttribute(attributeConstructor);
             targetFrameworkAttribute.ConstructorArguments.Add(new CustomAttributeArgument(assemblyDef.MainModule.TypeSystem.String, _frameworkProfile));

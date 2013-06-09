@@ -23,7 +23,7 @@ namespace Ark.Piranha {
             get { return _usedConstructors; }
         }
 
-        public override void ProcessMethod(MethodDefinition methodDef) {
+        protected override void ProcessMethod(MethodDefinition methodDef) {
             var typeDef = methodDef.DeclaringType;
             var moduleDef = typeDef.Module;
             var typeSystem = moduleDef.TypeSystem;

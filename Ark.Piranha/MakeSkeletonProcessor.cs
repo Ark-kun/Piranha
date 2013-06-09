@@ -9,12 +9,12 @@ namespace Ark.Piranha {
             _enableBreakingVerification = enableBreakingVerification;
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            new RemoveAllResourcesProcessor().ProcessAssembly(assemblyDef);
-            new EnsureParameterlessConstructorsProcessor().ProcessAssembly(assemblyDef);
-            new RemoveMethodBodiesProcessor().ProcessAssembly(assemblyDef);
-            new RemovePrivateMembersProcessor(!_enableBreakingVerification).ProcessAssembly(assemblyDef);
-            new RemovePrivateTypesProcessor().ProcessAssembly(assemblyDef);
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+            new RemoveAllResourcesProcessor().Process(assemblyDef);
+            new EnsureParameterlessConstructorsProcessor().Process(assemblyDef);
+            new RemoveMethodBodiesProcessor().Process(assemblyDef);
+            new RemovePrivateMembersProcessor(!_enableBreakingVerification).Process(assemblyDef);
+            new RemovePrivateTypesProcessor().Process(assemblyDef);
         }
     }
 }

@@ -19,14 +19,14 @@ namespace Ark.Piranha {
             }
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             base.ProcessAssembly(assemblyDef);
             if (!_addToAllTypes) {
                 _baseTypes.ForEach(EnsureParameterlessConstructor);
             }
         }
 
-        public override void ProcessType(TypeDefinition typeDef) {
+        protected override void ProcessType(TypeDefinition typeDef) {
             if (_addToAllTypes) {
                 EnsureParameterlessConstructor(typeDef);
             } else {
@@ -97,7 +97,7 @@ namespace Ark.Piranha {
         }
 
 
-        public override void ProcessMethod(MethodDefinition methodDef) {
+        protected override void ProcessMethod(MethodDefinition methodDef) {
             if (methodDef.IsConstructor && !methodDef.HasParameters && !methodDef.IsStatic) {
                 if (methodDef.IsPrivate) {
                     methodDef.IsAssembly = true;

@@ -15,11 +15,11 @@ namespace Ark.Piranha {
             return new ReaderParameters() { MetadataResolver = new ReferenceSearchingMetadataResolver(_assemblyResolver) };
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            new MakeSkeletonProcessor(false).ProcessAssembly(assemblyDef);
-            new RemovePInvokeMethodsProcessor().ProcessAssembly(assemblyDef);
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+            new MakeSkeletonProcessor(false).Process(assemblyDef);
+            new RemovePInvokeMethodsProcessor().Process(assemblyDef);
             _assemblyResolver.AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
-            new RetargetAssemblyProcessor(_frameworkProfile, true).ProcessAssembly(assemblyDef);
+            new RetargetAssemblyProcessor(_frameworkProfile, true).Process(assemblyDef);
         }
     }
 }

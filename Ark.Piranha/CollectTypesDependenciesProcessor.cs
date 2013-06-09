@@ -38,7 +38,7 @@ namespace Ark.Piranha {
             get { return _allTypesDependencies; }
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             if (_frameworkProfile == null) {
                 _frameworkProfile = assemblyDef.GuessAssemblyProfile();
             }
@@ -165,7 +165,7 @@ namespace Ark.Piranha {
             members.Add(dependingMember);
         }
 
-        public override void ProcessExportedType(ExportedType exportedType) {
+        protected override void ProcessExportedType(ExportedType exportedType) {
             var exportedTypeDef = exportedType.TryResolve();
             if (exportedTypeDef != null) {
                 AddDependency(exportedTypeDef, new ExportedTypeDependency(exportedType, exportedTypeDef.Module));
@@ -176,7 +176,7 @@ namespace Ark.Piranha {
             base.ProcessExportedType(exportedType);
         }
 
-        public override void ProcessType(TypeDefinition typeDef) {
+        protected override void ProcessType(TypeDefinition typeDef) {
             //ProcessFoundType(typeDef, typeDef); //? type self-dependency?
             if (typeDef.BaseType != null) {
                 AddDependency(typeDef.BaseType, new BaseClassDependency(typeDef));
@@ -187,22 +187,22 @@ namespace Ark.Piranha {
             base.ProcessType(typeDef);
         }
 
-        public override void ProcessField(FieldDefinition fieldDef) {
+        protected override void ProcessField(FieldDefinition fieldDef) {
             AddDependency(fieldDef.FieldType, new FieldDependency(fieldDef));
             base.ProcessField(fieldDef);
         }
 
-        public override void ProcessProperty(PropertyDefinition propertyDef) {
+        protected override void ProcessProperty(PropertyDefinition propertyDef) {
             AddDependency(propertyDef.PropertyType, new PropertyDependency(propertyDef));
             base.ProcessProperty(propertyDef);
         }
 
-        public override void ProcessEvent(EventDefinition eventDef) {
+        protected override void ProcessEvent(EventDefinition eventDef) {
             AddDependency(eventDef.EventType, new EventDependency(eventDef));
             base.ProcessEvent(eventDef);
         }
 
-        public override void ProcessMethod(MethodDefinition methodDef) {
+        protected override void ProcessMethod(MethodDefinition methodDef) {
             AddDependency(methodDef.ReturnType, new MethodDependency(methodDef));
             foreach (var parameter in methodDef.Parameters) {
                 AddDependency(parameter.ParameterType, new MethodDependency(methodDef));
@@ -228,7 +228,7 @@ namespace Ark.Piranha {
         }
 
 
-        public override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
+        protected override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
             AddDependency(attribute.AttributeType, new AttributeDependency(owner, attribute));
             base.ProcessCustomAttribute(attribute, owner);
         }

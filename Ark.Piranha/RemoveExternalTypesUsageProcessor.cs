@@ -25,7 +25,7 @@ namespace Ark.Piranha {
             return new ReaderParameters() { MetadataResolver = new ReferenceSearchingMetadataResolver(_assemblyResolver) };
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             if (_frameworkProfile == null) {
                 _frameworkProfile = assemblyDef.GuessAssemblyProfile();
             }
@@ -33,7 +33,7 @@ namespace Ark.Piranha {
                 _assemblyResolver.AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
             }
             var typesDependenciesCollector = new CollectTypesDependenciesProcessor(_frameworkProfile);
-            typesDependenciesCollector.ProcessAssembly(assemblyDef);
+            typesDependenciesCollector.Process(assemblyDef);
 
             var goodAssemblyNames = assemblyDef.Modules.SelectMany(asmDef => asmDef.AssemblyReferences);
             if(_removeNonRetargetable) {

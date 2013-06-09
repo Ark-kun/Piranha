@@ -22,11 +22,11 @@ namespace Ark.Piranha {
             return new ReaderParameters() { MetadataResolver = new ReferenceSearchingMetadataResolver(_assemblyResolver) };
         }
 
-        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+        protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
             _assemblyResolver.AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
-            new SetTargetFrameworkProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
-            new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).ProcessAssembly(assemblyDef);
-            new RemoveExternalTypesUsageProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
+            new SetTargetFrameworkProcessor(_frameworkProfile).Process(assemblyDef);
+            new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).Process(assemblyDef);
+            new RemoveExternalTypesUsageProcessor(_frameworkProfile).Process(assemblyDef);
         }
     }
 }
