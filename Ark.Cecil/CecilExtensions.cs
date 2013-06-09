@@ -39,6 +39,13 @@ namespace Ark.Cecil {
             }
         }
 
+        public static AssemblyDefinition TryResolve(this IAssemblyResolver assemblyResolver, AssemblyNameReference assemblyNameRef) {
+            try {
+                return assemblyResolver.Resolve(assemblyNameRef);
+            } catch (AssemblyResolutionException) { }
+            return null;
+        }
+
         public static AssemblyDefinition TryResolve(this ModuleDefinition moduleDef, AssemblyNameReference assemblyNameRef) {
             try {
                 return moduleDef.AssemblyResolver.Resolve(assemblyNameRef);
