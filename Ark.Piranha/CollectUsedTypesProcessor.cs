@@ -12,6 +12,13 @@ namespace Ark.Piranha {
         HashSet<TypeReference> _usedTypeReferences;
         HashSet<TypeDefinition> _usedTypes;
         HashSet<TypeReference> _unresolvedTypes;
+        FrameworkProfile _frameworkProfile;
+
+        public CollectUsedTypesProcessor() { }
+
+        public CollectUsedTypesProcessor(FrameworkProfile frameworkProfile) {
+            _frameworkProfile = frameworkProfile;
+        }
 
         public ISet<TypeDefinition> UsedTypes {
             get { return _usedTypes; }
@@ -34,12 +41,14 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            var frameworkProfile = assemblyDef.GuessAssemblyProfile();
-            if (frameworkProfile != null) {
+            if (_frameworkProfile == null) {
+                _frameworkProfile = assemblyDef.GuessAssemblyProfile();
+            }
+            if (_frameworkProfile != null) {
                 foreach (var moduleDef in assemblyDef.Modules) {
                     var resolver = moduleDef.AssemblyResolver as DefaultAssemblyResolver;
                     if (resolver != null) {
-                        resolver.AddSearchDirectory(frameworkProfile.ReferencesDirectory);
+                        resolver.AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
                     }
                 }
             }
