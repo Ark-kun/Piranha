@@ -63,7 +63,7 @@ namespace Ark.Piranha {
             var unprocessedTypes = new Queue<TypeReference>(_usedTypeReferences);
             _usedTypeReferences = null;
 
-            var processedTypes = new HashSet<TypeDefinition>();
+            var processedTypes = new HashSet<TypeDefinition>(CecilEqualityComparer.Default);
             var unresolvedTypes = new HashSet<TypeReference>(CecilEqualityComparer.Default);
 
             while (unprocessedTypes.Any()) {

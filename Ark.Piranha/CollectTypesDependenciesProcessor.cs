@@ -51,13 +51,13 @@ namespace Ark.Piranha {
                 }
             }
 
-            _usedTypeReferences = new Dictionary<TypeReference, HashSet<TypeDependency>>();
+            _usedTypeReferences = new Dictionary<TypeReference, HashSet<TypeDependency>>(CecilEqualityComparer.Default);
             base.ProcessAssembly(assemblyDef);
             var unprocessedTypes = new Queue<TypeReferenceAndDependencies>(_usedTypeReferences.Select(kv => (TypeReferenceAndDependencies)kv));
             _usedTypeReferences = null;
 
-            var processedTypes = new Dictionary<TypeDefinition, HashSet<TypeDependency>>();
-            var unresolvedTypes = new Dictionary<TypeReference, HashSet<TypeDependency>>();
+            var processedTypes = new Dictionary<TypeDefinition, HashSet<TypeDependency>>(CecilEqualityComparer.Default);
+            var unresolvedTypes = new Dictionary<TypeReference, HashSet<TypeDependency>>(CecilEqualityComparer.Default);
 
             while (unprocessedTypes.Any()) {
                 var typeDependencies = unprocessedTypes.Dequeue();
