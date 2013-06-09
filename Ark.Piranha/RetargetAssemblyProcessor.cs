@@ -21,7 +21,7 @@ namespace Ark.Piranha {
             ((DefaultAssemblyResolver)assemblyDef.MainModule.AssemblyResolver).AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
             new SetTargetFrameworkProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
             new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).ProcessAssembly(assemblyDef);
-            base.ProcessAssembly(assemblyDef);
+            new RemoveExternalTypesUsageProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
         }
     }
 }
