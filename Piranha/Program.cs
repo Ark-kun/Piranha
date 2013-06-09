@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace Piranha {
     class Program {
         static void Main(string[] args) {
+            Trace.Listeners.Add(new ConsoleTraceListener(true));
             if (!CommandLine.Parser.Default.ParseArguments(args, new PiranhaCommands(),
                 (v, o) => {
                     var command = o as CommonCommand;

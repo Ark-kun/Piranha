@@ -27,6 +27,9 @@ namespace Piranha {
         [VerbOption("make-skeleton", HelpText = "Remove all code, private class members and private types.")]
         public MakeSkeletonCommand MakeSkeleton { get; set; }
 
+        [VerbOption("remove-external-types-usage", HelpText = "Remove members or types that expose non external (non-BCL) types.")]
+        public RemoveExternalTypesUsageCommand RemoveExternalTypesUsage { get; set; }
+
         [VerbOption("mark-all-references-retargetable", HelpText = "Marks all references as retargetable")]
         public MarkAllReferencesRetargetableCommand MarkAllReferencesRetargetable { get; set; }
 

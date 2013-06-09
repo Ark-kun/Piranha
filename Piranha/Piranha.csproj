@@ -67,6 +67,7 @@
     <Compile Include="RemoveAllReferencesCommand.cs" />
     <Compile Include="RemoveAllResourcesCommand.cs" />
     <Compile Include="MakeSkeletonCommand.cs" />
+    <Compile Include="RemoveExternalTypesUsageCommand.cs" />
     <Compile Include="RemoveMethodBodiesCommand.cs" />
     <Compile Include="RemovePInvokeMethodsCommand.cs" />
     <Compile Include="RemovePrivateMembersCommand.cs" />
