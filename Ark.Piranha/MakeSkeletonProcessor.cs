@@ -10,6 +10,7 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+            new RemoveAllResourcesProcessor().ProcessAssembly(assemblyDef);
             new EnsureParameterlessConstructorsProcessor().ProcessAssembly(assemblyDef);
             new RemoveMethodBodiesProcessor().ProcessAssembly(assemblyDef);
             new RemovePrivateMembersProcessor(!_enableBreakingVerification).ProcessAssembly(assemblyDef);
