@@ -42,6 +42,9 @@ namespace Piranha {
         [VerbOption("retarget-assembly", HelpText = "Retargets references to a new profile and changes the TargetProfile attribute")]
         public RetargetAssemblyCommand RetargetAssembly { get; set; }
 
+        [VerbOption("make-portable-skeleton", HelpText = "Remove all resources, code, private class members, private types, changes the assembly framework profile and removes all dependencies on external types.")]
+        public MakePortableSkeletonCommand MakePortableSkeleton { get; set; }
+
         [VerbOption("list-used-types", HelpText = "List all types used by the assembly")]
         public ListUsedTypesCommand ListUsedTypes { get; set; }
 

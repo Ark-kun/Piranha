@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonCommand.cs" />
+    <Compile Include="MakePortableSkeletonCommand.cs" />
     <Compile Include="EnsureParameterlessConstructorsCommand.cs" />
     <Compile Include="ListUsedTypesCommand.cs" />
     <Compile Include="MarkAllReferencesRetargetableCommand.cs" />
