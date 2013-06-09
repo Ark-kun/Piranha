@@ -17,23 +17,38 @@ namespace Ark.Piranha {
         public ICollection<MethodReference> MethodsToPreserve { get; set; }
 
         protected override void ProcessType(TypeDefinition typeDef) {
-            typeDef.Interfaces.RemoveWhere(interfaceRef => interfaceRef.Resolve() == null || !interfaceRef.Resolve().IsPublic);
+            foreach (var removedInterface in typeDef.Interfaces.Where(ShouldRemoveInterface)) {
+                Trace.WriteLine(string.Format("Removed implementation of interface {0}.", removedInterface), "RemovePrivateMembers");
+            }
+            typeDef.Interfaces.RemoveWhere(ShouldRemoveInterface);
             base.ProcessType(typeDef);
         }
 
+        static bool ShouldRemoveInterface(TypeReference interfaceRef) {
+            return interfaceRef.Resolve() == null || !interfaceRef.Resolve().IsPublic;
+        }
+
         protected override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
-            methodDefs.RemoveWhere(methodDef => !(
+            foreach (var removedMethod in methodDefs.Where(ShouldRemoveMethod)) {
+                Trace.WriteLine(string.Format("Removed method {0}.", removedMethod), "RemovePrivateMembers");
+            }
+            methodDefs.RemoveWhere(ShouldRemoveMethod);
+
+            base.ProcessMethods(typeDef, methodDefs);
+        }
+
+        bool ShouldRemoveMethod(MethodDefinition methodDef) {
+            return !(
                    methodDef.IsPublic
                 || methodDef.IsFamily
                 || methodDef.IsFamilyOrAssembly
                 || methodDef.Overrides.Any(over => over.DeclaringType.Resolve() != null && over.DeclaringType.Resolve().IsPublic)
                 || MethodsToPreserve != null && MethodsToPreserve.Contains(methodDef)
                 || methodDef.IsConstructor && (methodDef.IsFamilyAndAssembly || methodDef.IsAssembly) && ShouldPreserveInternalConstructor(methodDef)
-            ));
-            base.ProcessMethods(typeDef, methodDefs);
+                );
         }
 
-        static bool ShouldPreserveInternalConstructor(MethodDefinition methodDef) {            
+        static bool ShouldPreserveInternalConstructor(MethodDefinition methodDef) {
             return !methodDef.HasParameters || methodDef.DeclaringType.GetParameterlessConstructor() == null;
         }
 
