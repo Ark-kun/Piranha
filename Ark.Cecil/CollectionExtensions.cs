@@ -4,6 +4,12 @@ using System.Linq;
 
 namespace Ark.Linq {
     public static class CollectionExtensions {
+        public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items) {
+            foreach (var item in items) {
+                collection.Add(item);
+            }
+        }
+
         public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate) {
             var list = collection as IList<T>;
             if (list != null) {
