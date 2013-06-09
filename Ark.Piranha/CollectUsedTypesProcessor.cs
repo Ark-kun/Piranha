@@ -1,5 +1,4 @@
 ﻿using Ark.Cecil;
-using Ark.DotNet;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System.Collections.Generic;
@@ -34,8 +33,10 @@ namespace Ark.Piranha {
         }
 
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            var frameworkProfile = assemblyDef.GetAssemblyProfileFromAttribute();
-            if (frameworkProfile != null) {
+            var targetFrameworkAttribute = assemblyDef.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.FullName == "System.Runtime.Versioning.TargetFrameworkAttribute");
+            if (targetFrameworkAttribute != null) {
+                var frameworkName = (string)targetFrameworkAttribute.ConstructorArguments.First().Value;
+                var frameworkProfile = Ark.DotNet.FrameworkProfile.Parse(frameworkName);
                 foreach (var moduleDef in assemblyDef.Modules) {
                     var resolver = moduleDef.AssemblyResolver as DefaultAssemblyResolver;
                     if (resolver != null) {
