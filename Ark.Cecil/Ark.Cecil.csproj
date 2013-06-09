@@ -47,15 +47,13 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MemberReferenceEqualityComparer.cs" />
+    <Compile Include="CecilEqualityComparer.cs" />
     <Compile Include="ReferenceSearchingMetadataResolver.cs" />
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilProcessor.cs" />
     <Compile Include="CloneExtensions.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="MethodReferenceEqualityComparer.cs" />
-    <Compile Include="TypeReferenceEqualityComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

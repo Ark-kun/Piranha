@@ -177,7 +177,7 @@ namespace Ark.Cecil {
         }
 
         public static IEnumerable<MethodReference> GetBaseConstructorCalls(this TypeDefinition typeDef) {
-            return typeDef.Methods.Where(methodDef => methodDef.IsConstructor && !methodDef.IsStatic).Select(methodDef => methodDef.GetBaseConstructorCall()).Where(methodDef => methodDef != null).Distinct(MethodReferenceEqualityComparer.Default);
+            return typeDef.Methods.Where(methodDef => methodDef.IsConstructor && !methodDef.IsStatic).Select(methodDef => methodDef.GetBaseConstructorCall()).Where<MethodReference>(methodDef => methodDef != null).Distinct<MethodReference>(CecilEqualityComparer.Default);
         }
 
         public static MethodReference GetBaseConstructorCall(this MethodDefinition methodDef, bool traverseConstructorChaining = true) {

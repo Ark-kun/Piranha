@@ -11,7 +11,7 @@ namespace Ark.Piranha {
         bool _fixConstructors;
         bool _fixFunctions;
         bool _fixVoidMethods;
-        HashSet<MethodReference> _usedConstructors = new HashSet<MethodReference>(MethodReferenceEqualityComparer.Default);
+        HashSet<MethodReference> _usedConstructors = new HashSet<MethodReference>(CecilEqualityComparer.Default);
 
         public RemoveMethodBodiesProcessor(bool fixConstructors = true, bool fixFunctions = true, bool fixVoidMethods = true) {
             _fixConstructors = fixConstructors;
