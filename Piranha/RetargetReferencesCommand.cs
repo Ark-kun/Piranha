@@ -12,7 +12,7 @@ namespace Piranha {
 
         public override void Execute() {
             var profile = FrameworkProfile.Parse(Profile);
-            new RetargetReferencesProcessor(profile.GetFrameworkAssemblies(), RemoveOthers).ProcessAssemblyFromFile(Input, Output);
+            new RetargetReferencesProcessor(profile, RemoveOthers).ProcessAssemblyFromFile(Input, Output);
         }
     }
 }

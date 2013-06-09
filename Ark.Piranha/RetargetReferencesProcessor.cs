@@ -1,4 +1,5 @@
 ﻿using Ark.Cecil;
+using Ark.DotNet;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,10 @@ namespace Ark.Piranha {
     public class RetargetReferencesProcessor : CecilProcessor {
         IDictionary<string, AssemblyNameReference> _assemblyReplacements;
         bool _removeOthers;
+
+        public RetargetReferencesProcessor(FrameworkProfile frameworkProfile, bool removeOthers = false)
+            : this(frameworkProfile.GetFrameworkAssemblies(), removeOthers) {
+        }
 
         public RetargetReferencesProcessor(IEnumerable<AssemblyNameReference> assemblyReplacements, bool removeOthers = false)
             : this(assemblyReplacements.ToDictionary(asm => asm.Name, asm => asm), removeOthers) {
