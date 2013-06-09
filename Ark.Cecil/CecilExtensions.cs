@@ -204,8 +204,7 @@ namespace Ark.Cecil {
                     where instr.OpCode == OpCodes.Call
                     let callMethodRef = (MethodReference)instr.Operand
                     let callMethodDef = callMethodRef.TryResolve()
-                    //where callMethodDef != null && callMethodDef.IsConstructor && (callMethodDef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodDef.DeclaringType.IsEqualTo(typeDef)) //Some types had callMethodRef.DeclaringType == null
-                    where callMethodDef != null && callMethodDef.IsConstructor && (callMethodRef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodRef.DeclaringType.IsEqualTo(typeDef))
+                    where ((callMethodDef != null && callMethodDef.IsConstructor) || (callMethodRef.Name == ".ctor")) && (callMethodRef.DeclaringType.IsEqualTo(typeDef.BaseType) || callMethodRef.DeclaringType.IsEqualTo(typeDef))
                     select new { ConstructorRef = callMethodRef, ConstructorDef = callMethodDef }
                 ).ToList();
             if (!baseOrThisConstructorCalls.Any()) {
