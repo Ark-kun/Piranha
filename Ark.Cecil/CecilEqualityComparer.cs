@@ -16,7 +16,7 @@ namespace Ark.Cecil {
         }
 
         public bool Equals(IMetadataTokenProvider x, IMetadataTokenProvider y) {
-            return Equals(x, y);
+            return AreEqual(x, y);
         }
 
         public static bool AreEqual(IMetadataTokenProvider x, IMetadataTokenProvider y) {
