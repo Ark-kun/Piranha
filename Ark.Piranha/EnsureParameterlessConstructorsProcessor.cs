@@ -1,4 +1,5 @@
 ﻿using Ark.Cecil;
+using Ark.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
@@ -8,8 +9,37 @@ using System.Linq;
 
 namespace Ark.Piranha {
     public class EnsureParameterlessConstructorsProcessor : CecilProcessor {
+        bool _addToAllTypes;
+        HashSet<TypeDefinition> _baseTypes;
+
+        public EnsureParameterlessConstructorsProcessor(bool addToAllTypes = false) {
+            _addToAllTypes = addToAllTypes;
+            if (!_addToAllTypes) {
+                _baseTypes = new HashSet<TypeDefinition>(CecilEqualityComparer.Default);
+            }
+        }
+
+        public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
+            base.ProcessAssembly(assemblyDef);
+            if (!_addToAllTypes) {
+                _baseTypes.ForEach(EnsureParameterlessConstructor);
+            }
+        }
+
         public override void ProcessType(TypeDefinition typeDef) {
-            EnsureParameterlessConstructor(typeDef);
+            if (_addToAllTypes) {
+                EnsureParameterlessConstructor(typeDef);
+            } else {
+                var baseTypeRef = typeDef.BaseType;
+                if (baseTypeRef != null) {
+                    var baseTypeDef = baseTypeRef.TryResolve();
+                    if (baseTypeDef != null) {
+                        if (typeDef.Module.Assembly.Modules.Contains(baseTypeDef.Module, CecilEqualityComparer.Default)) {
+                            _baseTypes.Add(baseTypeDef);
+                        }
+                    }
+                }
+            }
             base.ProcessType(typeDef);
         }
 
@@ -59,7 +89,7 @@ namespace Ark.Piranha {
             }
             method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
             typeDef.Methods.Add(method);
-            Trace.WriteLine(string.Format("Added parameterless constructor to type {0}.", typeDef.FullName));
+            Trace.WriteLine(string.Format("Added parameterless constructor to type {0}.", typeDef.FullName), "EnsureParameterlessConstructors");
             return method;
         }
 
@@ -71,6 +101,7 @@ namespace Ark.Piranha {
             if (methodDef.IsConstructor && !methodDef.HasParameters && !methodDef.IsStatic) {
                 if (methodDef.IsPrivate) {
                     methodDef.IsAssembly = true;
+                    Trace.WriteLine(string.Format("Changed {0} from private to internal.", methodDef), "EnsureParameterlessConstructors");
                 }
             }
             base.ProcessMethod(methodDef);

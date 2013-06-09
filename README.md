@@ -16,7 +16,7 @@ Advanced usage:
 
     //piranha.exe remove-all-references           -i library.dll                                   -o library.remove-all-references.dll #Useless. Crashes.
     piranha.exe remove-all-resources              -i library.dll                                   -o library.remove-all-resources.dll
-    piranha.exe ensure-parameterless-constructors -i library.dll                                   -o library.ensure-parameterless-constructors.dll
+    piranha.exe ensure-parameterless-constructors [--all-types] -i library.dll                     -o library.ensure-parameterless-constructors.dll
     piranha.exe remove-method-bodies              -i library.ensure-parameterless-constructors.dll -o library.remove-method-bodies.dll
     piranha.exe remove-private-members --preserve-fields-of-structs -i library.remove-method-bodies.dll -o library.remove-private-members.dll
     piranha.exe remove-private-types              -i library.remove-private-members.dll            -o library.remove-private-types.dll
