@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace Ark.Piranha {
     public class RetargetAssemblyProcessor : CecilProcessor {
+        DefaultAssemblyResolver _assemblyResolver = new DefaultAssemblyResolver();
         FrameworkProfile _frameworkProfile;
         bool _removeOtherReferences;
 
@@ -17,8 +18,12 @@ namespace Ark.Piranha {
             _removeOtherReferences = removeOtherReferences;
         }
 
+        protected override ReaderParameters GetDefaultReaderParameters() {
+            return new ReaderParameters() { MetadataResolver = new ReferenceSearchingMetadataResolver(_assemblyResolver) };
+        }
+
         public override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            ((DefaultAssemblyResolver)assemblyDef.MainModule.AssemblyResolver).AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
+            _assemblyResolver.AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
             new SetTargetFrameworkProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
             new RetargetReferencesProcessor(_frameworkProfile.GetFrameworkAssemblies(), _removeOtherReferences).ProcessAssembly(assemblyDef);
             new RemoveExternalTypesUsageProcessor(_frameworkProfile).ProcessAssembly(assemblyDef);
