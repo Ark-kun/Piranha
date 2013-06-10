@@ -48,10 +48,6 @@ namespace Ark.Piranha {
             if (typeDef.IsValueType || typeDef.IsInterface || typeDef.BaseType == null || typeDef.BaseType.FullName == "System.MulticastDelegate") {
                 return;
             }
-            if (typeDef.Name == "ModelBoneCollection") {
-            }
-            if (typeDef.BaseType.IsGenericInstance) {
-            }
             if (typeDef.GetParameterlessConstructor() == null) {
                 var baseTypeRef = typeDef.BaseType;
                 var baseTypeDef = baseTypeRef.TryResolve();
@@ -64,7 +60,7 @@ namespace Ark.Piranha {
                 } else {
                     var baseConstructorDef = baseTypeDef.GetParameterlessConstructor();
                     if (baseConstructorDef != null) {
-                        var baseConstructorRef = (baseTypeRef.IsGenericInstance ? baseConstructorDef.AsMethodOfGenericTypeInstance((GenericInstanceType)baseTypeRef) : baseConstructorDef);
+                        var baseConstructorRef = (baseTypeRef.IsGenericInstance ? baseConstructorDef.AsMethodOfGenericTypeInstance((GenericInstanceType)baseTypeRef) : typeDef.Module.Import(baseConstructorDef));
                         AddParameterlessConstructor(typeDef, baseConstructorRef);
                     } else {
                         if (baseTypeDef.Module == typeDef.Module) { //Is this equality comparison correct?
