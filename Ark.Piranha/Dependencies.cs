@@ -248,9 +248,15 @@ namespace Ark.Piranha {
 
         public TypeDefinition Type { get; set; }
 
+        public override string ToString() {
+            return Type.ToString();
+        }
+
+
         public static implicit operator KeyValuePair<TypeDefinition, HashSet<TypeDependency>>(TypeDefinitionAndDependencies self) {
             return new KeyValuePair<TypeDefinition, HashSet<TypeDependency>>(self.Type, self.DependingMembers);
         }
+
         public static implicit operator TypeDefinitionAndDependencies(KeyValuePair<TypeDefinition, HashSet<TypeDependency>> pair) {
             return new TypeDefinitionAndDependencies(pair.Key, pair.Value);
         }
@@ -266,9 +272,14 @@ namespace Ark.Piranha {
 
         public TypeReference Type { get; set; }
 
+        public override string ToString() {
+            return Type.ToString();
+        }
+
         public static implicit operator KeyValuePair<TypeReference, HashSet<TypeDependency>>(TypeReferenceAndDependencies self) {
             return new KeyValuePair<TypeReference, HashSet<TypeDependency>>(self.Type, self.DependingMembers);
         }
+
         public static implicit operator TypeReferenceAndDependencies(KeyValuePair<TypeReference, HashSet<TypeDependency>> pair) {
             return new TypeReferenceAndDependencies(pair.Key, pair.Value);
         }
