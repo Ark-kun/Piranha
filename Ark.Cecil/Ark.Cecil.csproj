@@ -45,10 +45,14 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ark.DotNet\FrameworkInfo.cs" />
     <Compile Include="Ark.DotNet\FrameworkProfile.cs" />
+    <Compile Include="Ark.DotNet\FrameworkProfileInfo.cs" />
+    <Compile Include="Ark.DotNet\FrameworkVersionInfo.cs" />
     <Compile Include="CecilEqualityComparer.cs" />
     <Compile Include="ReferenceSearchingMetadataResolver.cs" />
     <Compile Include="CecilExtensions.cs" />
