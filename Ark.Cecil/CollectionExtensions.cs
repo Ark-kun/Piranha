@@ -26,6 +26,26 @@ namespace Ark.Linq {
             }
         }
 
+        public static List<T> Exclude<T>(this ICollection<T> collection, Func<T, bool> predicate) {
+            var removedItems = new List<T>();
+            var list = collection as IList<T>;
+            if (list != null) {
+                for (int i = list.Count - 1; i >= 0; --i) {
+                    if (predicate(list[i])) {
+                        removedItems.Add(list[i]);
+                        list.RemoveAt(i);
+                    }
+                }
+            } else {
+                var itemsToRemove = collection.Where(predicate).ToList();
+                foreach (var item in itemsToRemove) {
+                    removedItems.Add(item);
+                    collection.Remove(item);
+                }
+            }
+            return removedItems;
+        }
+
         public static void ReversedForEach<TSource>(this IList<TSource> list, Action<TSource> action) {
             if (list == null) {
                 throw new ArgumentNullException("source");
