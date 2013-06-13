@@ -4,7 +4,7 @@ using Mono.Cecil;
 
 namespace Ark.Piranha {
     public class MakePortableSkeletonProcessor : CecilProcessor {
-        DefaultAssemblyResolver _assemblyResolver = new DefaultAssemblyResolver();
+        DefaultAssemblyResolver _assemblyResolver = new FrameworkAssemblyResolver();
         FrameworkProfile _frameworkProfile;
 
         public MakePortableSkeletonProcessor(FrameworkProfile frameworkProfile) {
