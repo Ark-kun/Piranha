@@ -61,6 +61,7 @@ namespace Ark.Piranha {
                 var typeRef = typeDependencies.Type;
                 var dependencies = typeDependencies.DependingMembers;
                 Trace.WriteLine(string.Format("Removing dependencies on type {0}:", typeRef), "RemoveExternalTypesUsage");
+                Trace.Indent();
                 foreach (var dependency in dependencies) {
                     if (!removedDependencies.Contains(dependency)) {
                         dependency.Break();
@@ -76,6 +77,7 @@ namespace Ark.Piranha {
                         }
                     }
                 }
+                Trace.Unindent();
             }
 
             base.ProcessAssembly(assemblyDef);
