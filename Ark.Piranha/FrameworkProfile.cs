@@ -50,15 +50,25 @@ namespace Ark.DotNet {
             }
         }
 
-        public static string ReferenceAssembliesDirectory {
-            get {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Reference Assemblies", "Microsoft", "Framework");
+        public static class Paths {
+            public static string ReferenceAssembliesDirectory {
+                get {
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Reference Assemblies", "Microsoft", "Framework");
+                }
             }
+
+            public static string FrameworkListFile {
+                get {
+                    return Path.Combine("RedistList", "FrameworkList.xml");
+                }
+            }
+
+            public const string ProfilesSubdirectory = "Profile";
         }
 
         public string ReferencesDirectory {
             get {
-                string directory = ReferenceAssembliesDirectory;
+                string directory = Paths.ReferenceAssembliesDirectory;
                 if (FrameworkName != null) {
                     directory = Path.Combine(directory, FrameworkName);
                 }
