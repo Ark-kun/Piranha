@@ -13,13 +13,15 @@ namespace Ark.Cecil {
             if (result != null) {
                 return result;
             }
-            var originalScope = type.Scope;
-            foreach (var reference in type.Module.AssemblyReferences) {
-                type.Scope = reference;
-                result = TryResolve(type);
-                if (result != null) {
-                    Trace.WriteLine(string.Format("Successfully forwarded the type {0} from {1} to {2}.", type, originalScope, type.Scope), "ReferenceSearchingMetadataResolver");
-                    return result;
+            if (!(type is GenericParameter || type is TypeSpecification)) {
+                var originalScope = type.Scope;
+                foreach (var reference in type.Module.AssemblyReferences) {
+                    type.Scope = reference;
+                    result = TryResolve(type);
+                    if (result != null) {
+                        Trace.WriteLine(string.Format("Successfully forwarded the type {0} from {1} to {2}.", type, originalScope, type.Scope), "ReferenceSearchingMetadataResolver");
+                        return result;
+                    }
                 }
             }
             return null;
