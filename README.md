@@ -18,7 +18,7 @@ Advanced usage:
     piranha.exe remove-all-resources              -i library.dll                                   -o library.remove-all-resources.dll
     piranha.exe ensure-parameterless-constructors [--all-types] -i library.dll                     -o library.ensure-parameterless-constructors.dll
     piranha.exe remove-method-bodies              -i library.ensure-parameterless-constructors.dll -o library.remove-method-bodies.dll
-    piranha.exe remove-private-members --preserve-fields-of-structs -i library.remove-method-bodies.dll -o library.remove-private-members.dll
+    piranha.exe remove-private-members [--preserve-fields-of-structs] [--leave-more-internal-constructors] -i library.remove-method-bodies.dll -o library.remove-private-members.dll
     piranha.exe remove-private-types              -i library.remove-private-members.dll            -o library.remove-private-types.dll
     piranha.exe make-skeleton --enable-breaking-verification -i library.dll                        -o library.make-skeleton.dll #same as remove-all-resources + ensure-parameterless-constructors + remove-method-bodies + remove-private-members + remove-private-types
     piranha.exe remove-pinvoke-methods            -i library.remove-method-bodies.dll              -o library.remove-private-members.dll

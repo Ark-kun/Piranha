@@ -13,7 +13,7 @@ namespace Ark.Piranha {
             new RemoveAllResourcesProcessor().Process(assemblyDef);
             new EnsureParameterlessConstructorsProcessor().Process(assemblyDef);
             new RemoveMethodBodiesProcessor().Process(assemblyDef);
-            new RemovePrivateMembersProcessor(!_enableBreakingVerification).Process(assemblyDef);
+            new RemovePrivateMembersProcessor(!_enableBreakingVerification, false).Process(assemblyDef);
             new RemovePrivateTypesProcessor().Process(assemblyDef);
         }
     }

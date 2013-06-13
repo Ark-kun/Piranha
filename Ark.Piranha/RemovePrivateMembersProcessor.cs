@@ -8,9 +8,11 @@ using System.Diagnostics;
 namespace Ark.Piranha {
     public class RemovePrivateMembersProcessor : CecilProcessor {
         bool _preserveFieldsOfStructs;
+        bool _leaveSomeInternalConstructorsWithParameters;
 
-        public RemovePrivateMembersProcessor(bool preserveFieldsOfStructs = false) {
+        public RemovePrivateMembersProcessor(bool preserveFieldsOfStructs = false, bool leaveSomeInternalConstructorsWithParameters = true) {
             _preserveFieldsOfStructs = preserveFieldsOfStructs;
+            _leaveSomeInternalConstructorsWithParameters = leaveSomeInternalConstructorsWithParameters;
         }
 
         public ICollection<FieldReference> FieldsToPreserve { get; set; }
@@ -48,8 +50,8 @@ namespace Ark.Piranha {
                 );
         }
 
-        static bool ShouldPreserveInternalConstructor(MethodDefinition methodDef) {
-            return !methodDef.HasParameters || methodDef.DeclaringType.GetParameterlessConstructor() == null;
+        bool ShouldPreserveInternalConstructor(MethodDefinition methodDef) {
+            return !methodDef.HasParameters || (_leaveSomeInternalConstructorsWithParameters && methodDef.DeclaringType.GetParameterlessConstructor() == null && !methodDef.DeclaringType.Methods.Any(m => m.IsConstructor && (m.IsPublic || m.IsFamily || m.IsFamilyOrAssembly)));
         }
 
         protected override void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
