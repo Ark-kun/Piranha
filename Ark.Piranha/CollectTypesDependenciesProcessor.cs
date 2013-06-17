@@ -229,7 +229,7 @@ namespace Ark.Piranha {
 
 
         protected override void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) {
-            AddDependency(attribute.AttributeType, new AttributeDependency(owner, attribute));
+            AddDependency(attribute.AttributeType, new AttributeDependency(owner, attribute.AttributeType));
             base.ProcessCustomAttribute(attribute, owner);
         }
     }

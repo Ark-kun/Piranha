@@ -1,4 +1,5 @@
 ﻿using Ark.Cecil;
+using Ark.Linq;
 using Mono.Cecil;
 using System;
 using System.Collections.Generic;
@@ -191,21 +192,21 @@ namespace Ark.Piranha {
         }
     }
 
-    class AttributeDependency : TypeDependency {
+    class AttributeDependency : TypeDependency, IEquatable<AttributeDependency> {
         ICustomAttributeProvider _customAtrributeProvider;
-        CustomAttribute _attribute;
+        TypeReference _attributeType;
 
-        public AttributeDependency(ICustomAttributeProvider dependingObject, CustomAttribute attribute) {
+        public AttributeDependency(ICustomAttributeProvider dependingObject, TypeReference attributeType) {
             _customAtrributeProvider = dependingObject;
-            _attribute = attribute;
+            _attributeType = attributeType;
         }
 
         public ICustomAttributeProvider AttributedMember {
             get { return _customAtrributeProvider; }
         }
 
-        public CustomAttribute Attribute {
-            get { return _attribute; }
+        public TypeReference AttributeType {
+            get { return _attributeType; }
         }
 
         public override IMetadataTokenProvider DependingMember {
@@ -215,8 +216,21 @@ namespace Ark.Piranha {
         public override int Priority { get { return 1; } }
 
         public override void Break() {
-            Trace.WriteLine(String.Format("Removing attribute {0} from {1} because the attribute is being removed.", Attribute, AttributedMember), "TypeDependency");
-            AttributedMember.CustomAttributes.Remove(Attribute);
+            Trace.WriteLine(String.Format("Removing attribute {0} from {1} because the attribute is being removed.", AttributeType, AttributedMember), "TypeDependency");
+            AttributedMember.CustomAttributes.RemoveWhere(ca => CecilEqualityComparer.AreEqual(ca.AttributeType, AttributeType));
+        }
+
+        public bool Equals(AttributeDependency other) {
+            return (object)other != null && CecilEqualityComparer.AreEqual(other.DependingMember, this.DependingMember);
+        }
+
+        public override bool Equals(object obj) {
+            var attributeDependency = obj as AttributeDependency;
+            return attributeDependency != null && this.Equals(attributeDependency);
+        }
+
+        public override int GetHashCode() {
+            return CecilEqualityComparer.GetHashCode(DependingMember) ^ CecilEqualityComparer.GetHashCode(AttributeType);
         }
     }
 
