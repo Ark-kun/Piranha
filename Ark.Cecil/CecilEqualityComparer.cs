@@ -39,7 +39,11 @@ namespace Ark.Cecil {
             return x.ToString() == y.ToString() && (x.GetType().IsAssignableFrom(y.GetType()) || y.GetType().IsAssignableFrom(x.GetType())); //This seems to be enough and the rest of the types have sufficient overloaded .ToString() methods.
         }
 
-        public int GetHashCode(IMetadataTokenProvider obj) {
+        int IEqualityComparer<IMetadataTokenProvider>.GetHashCode(IMetadataTokenProvider obj) {
+            return GetHashCode(obj);
+        }
+
+        public static int GetHashCode(IMetadataTokenProvider obj) {
             if (obj == null) {
                 return 0;
             }
