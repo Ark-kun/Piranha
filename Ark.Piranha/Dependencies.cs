@@ -15,15 +15,28 @@ namespace Ark.Piranha {
         }
 
         public bool Equals(TypeDependency other) {
-            return other.GetType() == this.GetType() && CecilEqualityComparer.AreEqual(other.DependingMember, this.DependingMember);
+            return (object)other != null && other.GetType() == this.GetType() && CecilEqualityComparer.AreEqual(other.DependingMember, this.DependingMember);
+        }
+
+        public override bool Equals(object obj) {
+            var typeDependency = obj as TypeDependency;
+            return typeDependency != null && this.Equals(typeDependency);
         }
 
         public override int GetHashCode() {
-            return this.GetType().GetHashCode() ^ DependingMember.GetHashCode();
+            return this.GetType().GetHashCode() ^ CecilEqualityComparer.GetHashCode(DependingMember);
         }
 
         public override string ToString() {
             return DependingMember.ToString();
+        }
+
+        public static bool operator ==(TypeDependency a, TypeDependency b) {
+            return (object)a == null ? (object)b == null : a.Equals(b);
+        }
+
+        public static bool operator !=(TypeDependency a, TypeDependency b) {
+            return !(a == b);
         }
     }
 
