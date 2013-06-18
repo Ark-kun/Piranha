@@ -30,15 +30,6 @@ namespace Ark.Piranha {
             return interfaceRef.Resolve() == null || !interfaceRef.Resolve().IsPublic;
         }
 
-        protected override void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
-            foreach (var removedMethod in methodDefs.Where(ShouldRemoveMethod)) {
-                Trace.WriteLine(string.Format("Removed method {0}.", removedMethod), "RemovePrivateMembers");
-            }
-            methodDefs.RemoveWhere(ShouldRemoveMethod);
-
-            base.ProcessMethods(typeDef, methodDefs);
-        }
-
         bool ShouldRemoveMethod(MethodDefinition methodDef) {
             return !(
                    methodDef.IsPublic
@@ -54,19 +45,12 @@ namespace Ark.Piranha {
             return !methodDef.HasParameters || (_leaveSomeInternalConstructorsWithParameters && methodDef.DeclaringType.GetParameterlessConstructor() == null && !methodDef.DeclaringType.Methods.Any(m => m.IsConstructor && (m.IsPublic || m.IsFamily || m.IsFamilyOrAssembly)));
         }
 
-        protected override void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
-            fieldDefs.RemoveWhere(fieldDef => !fieldDef.IsPublic && !fieldDef.IsFamily && !(typeDef.IsValueType && _preserveFieldsOfStructs) && !(FieldsToPreserve != null && FieldsToPreserve.Contains(fieldDef)));
-            base.ProcessFields(typeDef, fieldDefs);
-        }
-
-        protected override void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
-            base.ProcessProperties(typeDef, propertyDefs);
-            foreach (var propertyDef in typeDef.Properties.ToList()) {
-                if (propertyDef.GetMethod == null && propertyDef.SetMethod == null) {
-                    Trace.WriteLine(string.Format("Removing property {0}.", propertyDef), "RemovePrivateMembers");
-                    typeDef.Properties.Remove(propertyDef);
-                }
+        protected override void ProcessField(FieldDefinition fieldDef) {
+            if (!fieldDef.IsPublic && !fieldDef.IsFamily && !(fieldDef.DeclaringType.IsValueType && _preserveFieldsOfStructs) && !(FieldsToPreserve != null && FieldsToPreserve.Contains(fieldDef))) {
+                Trace.WriteLine(string.Format("Removing field {0}.", fieldDef), "RemovePrivateMembers");
+                fieldDef.DeclaringType.Fields.Remove(fieldDef);
             }
+            base.ProcessField(fieldDef);
         }
 
         protected override void ProcessProperty(PropertyDefinition propertyDef) {
@@ -76,6 +60,13 @@ namespace Ark.Piranha {
             if (propertyDef.SetMethod != null && propertyDef.SetMethod.Module == null) {
                 propertyDef.SetMethod = null;
             }
+            propertyDef.OtherMethods.RemoveWhere(methodDef => methodDef.Module == null);
+
+            if (propertyDef.GetMethod == null && propertyDef.SetMethod == null && !propertyDef.OtherMethods.Any()) {
+                Trace.WriteLine(string.Format("Removing property {0}.", propertyDef), "RemovePrivateMembers");
+                propertyDef.DeclaringType.Properties.Remove(propertyDef);
+            }
+
             base.ProcessProperty(propertyDef);
         }
 
@@ -114,6 +105,11 @@ namespace Ark.Piranha {
                 } else {
                 }
             }
+
+            if (ShouldRemoveMethod(methodDef)) {
+                Trace.WriteLine(string.Format("Removing method {0}.", methodDef), "RemovePrivateMembers");
+                methodDef.DeclaringType.Methods.Remove(methodDef);
+            }            
 
             base.ProcessMethod(methodDef);
         }
