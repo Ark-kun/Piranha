@@ -79,6 +79,23 @@ namespace Ark.Piranha {
             base.ProcessProperty(propertyDef);
         }
 
+        protected override void ProcessEvent(EventDefinition eventDef) {
+            if (eventDef.AddMethod != null && eventDef.AddMethod.Module == null) {
+                eventDef.AddMethod = null;
+            }
+            if (eventDef.RemoveMethod != null && eventDef.RemoveMethod.Module == null) {
+                eventDef.RemoveMethod = null;
+            }
+            eventDef.OtherMethods.RemoveWhere(methodDef => methodDef.Module == null);
+
+            if (eventDef.AddMethod == null && eventDef.RemoveMethod == null && !eventDef.OtherMethods.Any()) {
+                Trace.WriteLine(string.Format("Removing event {0}.", eventDef), "RemovePrivateMembers");
+                eventDef.DeclaringType.Events.Remove(eventDef);
+            }
+
+            base.ProcessEvent(eventDef);
+        }
+
         protected override void ProcessMethod(MethodDefinition methodDef) {
             //methodDef.Overrides.RemoveWhere(overrideRef => overrideRef.DeclaringType.i)
             var overrides = methodDef.Overrides;
