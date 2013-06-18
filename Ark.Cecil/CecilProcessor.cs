@@ -74,7 +74,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessModules(AssemblyDefinition assemblyDef, IList<ModuleDefinition> moduleDefs) {
-            moduleDefs.ForEach(ProcessModule);
+            moduleDefs.ReversedForEach(ProcessModule);
         }
 
         protected virtual void ProcessModule(ModuleDefinition moduleDef) {
@@ -87,31 +87,31 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
-            assemblyNameRefs.ForEach(ProcessAssemblyReference);
+            assemblyNameRefs.ReversedForEach(ProcessAssemblyReference);
         }
 
         protected virtual void ProcessAssemblyReference(AssemblyNameReference assemblyNameRef) { }
 
         protected virtual void ProcessModuleReferences(ModuleDefinition moduleDef, IList<ModuleReference> moduleRefs) {
-            moduleRefs.ForEach(ProcessModuleReference);
+            moduleRefs.ReversedForEach(ProcessModuleReference);
         }
 
         protected virtual void ProcessModuleReference(ModuleReference moduleRef) { }
 
         protected virtual void ProcessResources(ModuleDefinition moduleDef, IList<Resource> resources) {
-            resources.ForEach(ProcessResource);
+            resources.ReversedForEach(ProcessResource);
         }
 
         protected virtual void ProcessResource(Resource resource) { }
 
         protected virtual void ProcessExportedTypes(ModuleDefinition moduleDef, IList<ExportedType> exportedTypes) {
-            exportedTypes.ForEach(ProcessExportedType);
+            exportedTypes.ReversedForEach(ProcessExportedType);
         }
 
         protected virtual void ProcessExportedType(ExportedType exportedType) { }
 
         protected virtual void ProcessModuleTypes(ModuleDefinition moduleDef, IList<TypeDefinition> typeDefs) {
-            typeDefs.ForEach(ProcessTypeAndNestedTypes);
+            typeDefs.ReversedForEach(ProcessTypeAndNestedTypes);
         }
 
         protected virtual void ProcessTypeAndNestedTypes(TypeDefinition typeDef) {
@@ -120,7 +120,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessNestedTypes(TypeDefinition typeDef, IList<TypeDefinition> typeDefs) {
-            typeDefs.ForEach(ProcessTypeAndNestedTypes);
+            typeDefs.ReversedForEach(ProcessTypeAndNestedTypes);
         }
 
         protected virtual void ProcessType(TypeDefinition typeDef) {
@@ -132,7 +132,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessFields(TypeDefinition typeDef, IList<FieldDefinition> fieldDefs) {
-            fieldDefs.ForEach(ProcessField);
+            fieldDefs.ReversedForEach(ProcessField);
         }
 
         protected virtual void ProcessField(FieldDefinition fieldDef) {
@@ -140,7 +140,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessProperties(TypeDefinition typeDef, IList<PropertyDefinition> propertyDefs) {
-            propertyDefs.ForEach(ProcessProperty);
+            propertyDefs.ReversedForEach(ProcessProperty);
         }
 
         protected virtual void ProcessProperty(PropertyDefinition propertyDef) {
@@ -148,7 +148,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessEvents(TypeDefinition typeDef, IList<EventDefinition> eventDefs) {
-            eventDefs.ForEach(ProcessEvent);
+            eventDefs.ReversedForEach(ProcessEvent);
         }
 
         protected virtual void ProcessEvent(EventDefinition eventDef) {
@@ -156,7 +156,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessMethods(TypeDefinition typeDef, IList<MethodDefinition> methodDefs) {
-            methodDefs.ForEach(ProcessMethod);
+            methodDefs.ReversedForEach(ProcessMethod);
         }
 
         protected virtual void ProcessMethod(MethodDefinition methodDef) {
@@ -164,7 +164,7 @@ namespace Ark.Cecil {
         }
 
         protected virtual void ProcessCustomAttributes(IList<CustomAttribute> attributes, ICustomAttributeProvider owner) {
-            attributes.ForEach(attr => ProcessCustomAttribute(attr, owner));
+            attributes.ReversedForEach(attr => ProcessCustomAttribute(attr, owner));
         }
 
         protected virtual void ProcessCustomAttribute(CustomAttribute attribute, ICustomAttributeProvider owner) { }
