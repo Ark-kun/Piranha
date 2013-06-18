@@ -48,6 +48,9 @@ namespace Piranha {
         [VerbOption("list-used-types", HelpText = "List all types used by the assembly")]
         public ListUsedTypesCommand ListUsedTypes { get; set; }
 
+        [VerbOption("list-api", HelpText = "Lists all public types and methods in the assembly")]
+        public ListApiCommand ListApi { get; set; }
+
         [HelpVerbOption]
         public string GetUsage(string verb) {
             return HelpText.AutoBuild(this, verb);

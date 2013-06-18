@@ -29,6 +29,7 @@ Advanced usage:
     piranha.exe make-portable-skeleton --profile ".NETPortable,Version=v4.0,Profile=Profile88"                 -i library.dll -o library.make-portable-skeleton.dll #same as make-skeleton + remove-pinvoke-methods + retarget-assembly
     piranha.exe mark-all-references-retargetable  -i library.dll                                   -o library.mark-all-references-retargetable.dll
     piranha.exe list-used-types                   -i library.dll -o library.UsedTypes.txt
+    piranha.exe list-api                          -i library.dll -o library.API.txt
 
 Requirements:
 
