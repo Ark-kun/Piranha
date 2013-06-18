@@ -16,7 +16,7 @@ namespace Ark.Piranha {
         }
 
         protected override void ProcessAssembly(AssemblyDefinition assemblyDef) {
-            new MakeSkeletonProcessor(false).Process(assemblyDef);
+            new MakeSkeletonProcessor().Process(assemblyDef);
             new RemovePInvokeMethodsProcessor().Process(assemblyDef);
             _assemblyResolver.AddSearchDirectory(_frameworkProfile.ReferencesDirectory);
             new RetargetAssemblyProcessor(_frameworkProfile, true).Process(assemblyDef);

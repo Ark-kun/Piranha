@@ -3,11 +3,11 @@ using CommandLine;
 
 namespace Piranha {
     class MakeSkeletonCommand : CommonCommand {
-        [Option("enable-breaking-verification", HelpText = "Enabling operations that can make the resulting assembly unverifiable.")]
-        public bool EnableBreakingVerification { get; set; }
+        [Option("disable-breaking-verification", HelpText = "Disable operations that can make the resulting assembly unverifiable.")]
+        public bool DisableBreakingVerification { get; set; }
 
         public override void Execute() {
-            new MakeSkeletonProcessor(EnableBreakingVerification).ProcessAssemblyFromFile(Input, Output);
+            new MakeSkeletonProcessor(DisableBreakingVerification).ProcessAssemblyFromFile(Input, Output);
         }
     }
 }
