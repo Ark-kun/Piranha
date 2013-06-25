@@ -57,6 +57,9 @@
     <Compile Include="Ark.DotNet\FrameworkProfileInfo.cs" />
     <Compile Include="Ark.DotNet\FrameworkVersionInfo.cs" />
     <Compile Include="CecilEqualityComparer.cs" />
+    <Compile Include="ComparisonExtensions.cs" />
+    <Compile Include="EmitExtensions.cs" />
+    <Compile Include="ResolutionExtensions.cs" />
     <Compile Include="ReferenceSearchingMetadataResolver.cs" />
     <Compile Include="CecilExtensions.cs" />
     <Compile Include="CecilProcessor.cs" />
