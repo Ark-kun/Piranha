@@ -36,5 +36,26 @@ namespace Ark.Cecil {
             } catch (AssemblyResolutionException) { }
             return null;
         }
+
+        public static FieldDefinition TryResolve(this IMetadataResolver metadataResolver, FieldReference fieldRef) {
+            try {
+                return metadataResolver.Resolve(fieldRef);
+            } catch (AssemblyResolutionException) { }
+            return null;
+        }
+
+        public static MethodDefinition TryResolve(this IMetadataResolver metadataResolver, MethodReference methodRef) {
+            try {
+                return metadataResolver.Resolve(methodRef);
+            } catch (AssemblyResolutionException) { }
+            return null;
+        }
+
+        public static TypeDefinition TryResolve(this IMetadataResolver metadataResolver, TypeReference typeRef) {
+            try {
+                return metadataResolver.Resolve(typeRef);
+            } catch (AssemblyResolutionException) { }
+            return null;
+        }
     }
 }
