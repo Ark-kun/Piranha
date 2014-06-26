@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="CollectUsedTypesProcessor.cs" />
     <Compile Include="CollectTypesDependenciesProcessor.cs" />
+    <Compile Include="IntersectSkeletonsProcessor.cs" />
     <Compile Include="ListApiProcessor.cs" />
     <Compile Include="MakePortableSkeletonProcessor.cs" />
     <Compile Include="Dependencies.cs" />
