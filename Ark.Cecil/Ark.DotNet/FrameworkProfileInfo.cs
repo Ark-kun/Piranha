@@ -32,9 +32,11 @@ namespace Ark.DotNet {
                     Trace.WriteLine(string.Format("Warning: Couldn't parse version of the {0} assembly description.", fileElement.ToString()));
                 }
 
-                var culture = fileElement.Attribute("Culture").Value;
-                if (culture == "neutral") {
-                    culture = null;
+
+                string culture = null;
+                var attrib = fileElement.Attribute ("Culture");
+                if (attrib != null && attrib.Value != "neutral") {
+                    culture = attrib.Value;
                 }
 
                 var publicKeyTokenString = fileElement.Attribute("PublicKeyToken").Value;
