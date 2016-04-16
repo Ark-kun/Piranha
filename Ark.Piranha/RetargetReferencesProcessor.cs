@@ -30,7 +30,23 @@ namespace Ark.Piranha {
                     assemblyNameRefs[i].PublicKeyToken = replacement.PublicKeyToken;
                     assemblyNameRefs[i].IsRetargetable = replacement.IsRetargetable;
                 } else {
-                    if (_removeOthers) {
+                    if (_removeOthers)
+                    {
+                        var other = assemblyNameRefs[i];
+                        try
+                        {
+                            var otherAss = moduleDef.AssemblyResolver.Resolve(other);
+                            var otherProfile = otherAss.GetAssemblyProfileFromAttribute();
+                            if (otherProfile.IsPortable)
+                            {
+                                other.Version = otherAss.Name.Version;
+                                other.PublicKeyToken = otherAss.Name.PublicKeyToken;
+                                continue;
+                            }
+                        }
+                        catch
+                        {
+                        }
                         assemblyNameRefs.RemoveAt(i);
                     }
                 }
