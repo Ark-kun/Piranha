@@ -1,4 +1,6 @@
-﻿using Ark.Cecil;
+﻿using System;
+using System.Diagnostics;
+using Ark.Cecil;
 using Ark.DotNet;
 using Mono.Cecil;
 using System.Collections.Generic;
@@ -25,29 +27,30 @@ namespace Ark.Piranha {
         protected override void ProcessAssemblyReferences(ModuleDefinition moduleDef, IList<AssemblyNameReference> assemblyNameRefs) {
             for (int i = assemblyNameRefs.Count - 1; i >= 0; --i) {
                 AssemblyNameReference replacement = null;
-                if (_assemblyReplacements.TryGetValue(assemblyNameRefs[i].Name, out replacement)) {
+                var other = assemblyNameRefs[i];
+                var otherName = other.Name + "," + other.Version;
+                if (_assemblyReplacements.TryGetValue(other.Name, out replacement)) {                
                     assemblyNameRefs[i].Version = replacement.Version;
                     assemblyNameRefs[i].PublicKeyToken = replacement.PublicKeyToken;
                     assemblyNameRefs[i].IsRetargetable = replacement.IsRetargetable;
+                    var replacementName = replacement.Name + "," + replacement.Version;
+                    Trace.WriteLine(string.Format("Replacing {0} with {1}.", otherName, replacementName), "RetargetReferences");
                 } else {
-                    if (_removeOthers)
-                    {
-                        var other = assemblyNameRefs[i];
-                        try
-                        {
+                    if (_removeOthers) {
+                        try { 
                             var otherAss = moduleDef.AssemblyResolver.Resolve(other);
                             var otherProfile = otherAss.GetAssemblyProfileFromAttribute();
-                            if (otherProfile.IsPortable)
-                            {
-                                other.Version = otherAss.Name.Version;
-                                other.PublicKeyToken = otherAss.Name.PublicKeyToken;
+                            if (otherProfile != null && otherProfile.IsPortable) {
+                                Trace.WriteLine(string.Format("Keeping {0}.", otherName), "RetargetReferences");
                                 continue;
                             }
+                        } catch(Exception ex) {
+                            Trace.WriteLine(string.Format("Failed resolving {0}.", otherName), "RetargetReferences");
                         }
-                        catch
-                        {
-                        }
+                        Trace.WriteLine(string.Format("Removing {0}.", otherName), "RetargetReferences");
                         assemblyNameRefs.RemoveAt(i);
+                    } else {
+                        Trace.WriteLine(string.Format("Keeping {0}.", otherName), "RetargetReferences");
                     }
                 }
             }
